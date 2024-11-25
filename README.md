@@ -88,9 +88,9 @@ Pada project aplikasi mobile ini, kami memakai data yang sama dengan data yang a
 
     Kami memakai bantuan package `pbp-django-auth` yang dibuat oleh tim asdos dan package `Provider` yang menyimpan cookies untuk nantinya dipakai di setiap request yang akan dilakukan dari dalam aplikasi kami. Kami juga berencana untuk memakai package `SharedPreferences`untuk menyimpan data dari `CookieRequest` yang kami miliki sehingga bisa dipakai walaupun aplikasi ditutup.
 
-4. Membuat endpoints baru untuk mengambil, mengubah maupun menghapus (proses CRUD) dari data yang kami miliki di server Django.
+4. Membuat endpoints baru khusus untuk implementasi mobile dalam mengambil, mengubah maupun menghapus (proses CRUD) dari data yang kami miliki di server Django.
 
-    Kami berencana untuk memakai implementasi Django REST API pada server Django kami di `views.py` masing-masing untuk membantu aplikasi Flutter kami menerima data yang lebih lengkap dan sesuai dengan kebutuhan aplikasi kami.
+    Kami berencana untuk memakai implementasi Django REST Framework pada server Django kami di `views.py` masing-masing untuk membantu aplikasi Flutter kami menerima data yang lebih lengkap dan sesuai dengan kebutuhan aplikasi kami.
 
 ## 📝 Berita Acara
 
