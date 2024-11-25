@@ -95,5 +95,3 @@ Pada project aplikasi mobile ini, kami memakai data yang sama dengan data yang a
 ## 📝 Berita Acara
 
 Berikut progress dari kelompok kami yang disusun pada [spreadsheet](https://docs.google.com/spreadsheets/d/158wbq0bBDEsZio5lZCaf8CGNx0smFYjvmxRDKNaVJLw/edit?usp=sharing) ini.
-
-<iframe src="https://docs.google.com/spreadsheets/d/158wbq0bBDEsZio5lZCaf8CGNx0smFYjvmxRDKNaVJLw/edit?usp=sharing" width="100%" height="500px"></iframe>
