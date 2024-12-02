@@ -11,14 +11,51 @@ class App extends StatelessWidget {
       DeviceOrientation.portraitDown,
     ]);
     
-    return const MaterialApp(
+    return MaterialApp(
       title: "BaKet",
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: Center(
-          child: Text('Hello World!'),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                child: const Text('Beranda'),
+                onPressed: () {},
+              ),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                ),
+              ElevatedButton(
+                child: const Text('Katalog'),
+                onPressed: () {},
+              ),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                ),
+              ElevatedButton(
+                child: const Text('Forum'),
+                onPressed: () {},
+              ),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                ),
+              ElevatedButton(
+                child: const Text('Artikel'),
+                onPressed: () {},
+              ),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                ),
+              ElevatedButton(
+                child: const Text('Profile'),
+                onPressed: () {},
+              ),
+            ],
+          ),
         ),
       ),
     );
+
   }
 }
