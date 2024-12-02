@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 
+/// Ideal for debugging purposes. 
+/// You can use this to log your API fetches, responses, etc.
 class LoggerService {
   /// Log a message at level [Level.trace].
   static void v(dynamic message, [dynamic error, StackTrace? stackTrace]) {
