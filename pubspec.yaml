@@ -16,6 +16,8 @@ dependencies:
   flutter_native_splash: ^2.4.3
   provider: ^6.1.2
   pbp_django_auth: ^0.4.0
+  image_picker: ^1.0.7
+  http: ^1.1.0
 
 dev_dependencies:
   build_runner: ^2.4.11
