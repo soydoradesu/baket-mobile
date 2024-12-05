@@ -47,5 +47,9 @@
 		<true/>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>This app needs access to photo library to select product images</string>
+		<key>NSCameraUsageDescription</key>
+		<string>This app needs camera access to take product photos</string>
 	</dict>
 </plist>
