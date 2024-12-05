@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:baket_mobile/features/articles/pages/test.dart';
-
+import 'package:baket_mobile/features/product/pages/product_page.dart';
 class App extends StatelessWidget {
   const App({super.key});
 
@@ -24,7 +24,14 @@ class App extends StatelessWidget {
                 children: [
                   ElevatedButton(
                     child: const Text('Beranda'),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProductPage()
+                          ),
+                      );
+                    },
                   ),
                   const Padding(
                     padding: EdgeInsets.all(8.0),
