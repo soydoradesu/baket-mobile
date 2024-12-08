@@ -104,7 +104,8 @@ class _AddProductPageState extends State<AddProductPage> {
         } else {
           // Error occurred
           var responseData = json.decode(response.body);
-          String errorMessage = responseData['error']?.toString() ?? 'Unknown error occurred';
+          String errorMessage =
+              responseData['error']?.toString() ?? 'Unknown error occurred';
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("Error: $errorMessage")),
           );
@@ -221,7 +222,8 @@ class _AddProductPageState extends State<AddProductPage> {
                   items: _categories.map((String category) {
                     return DropdownMenuItem(
                       value: category,
-                      child: Text(category[0].toUpperCase() + category.substring(1)),
+                      child: Text(
+                          category[0].toUpperCase() + category.substring(1)),
                     );
                   }).toList(),
                   onChanged: (String? newValue) {
@@ -245,12 +247,15 @@ class _AddProductPageState extends State<AddProductPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.add_photo_alternate,
-                          color: _image == null ? Colors.grey[600] : Colors.green),
+                          color:
+                              _image == null ? Colors.grey[600] : Colors.green),
                       const SizedBox(width: 8),
                       Text(
                         _image == null ? "Select Image" : "Image Selected",
                         style: TextStyle(
-                            color: _image == null ? Colors.grey[600] : Colors.green),
+                            color: _image == null
+                                ? Colors.grey[600]
+                                : Colors.green),
                       ),
                     ],
                   ),
