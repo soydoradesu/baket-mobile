@@ -1,3 +1,4 @@
+import 'package:baket_mobile/features/auth/pages/login.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -17,14 +18,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Provider(
-      create: (_) => CookieRequest(),
+      create: (_) {
+        CookieRequest request = CookieRequest();
+        return request;
+      },
       child: MaterialApp(
         title: 'Flutter App',
         theme: ThemeData(
           primarySwatch: Colors.blue,
           // ... other theme settings
         ),
-        home: const App(), // or your initial route
+        home: const LoginApp(), // or your initial route
       ),
     );
   }
