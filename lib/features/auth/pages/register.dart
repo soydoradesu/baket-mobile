@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:baket_mobile/features/auth/pages/login.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart'; // For formatting the selected date
+import 'package:intl/intl.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart'; // For formatting the selected date
 
 void main() {
   runApp(const RegisterApp());
@@ -32,6 +36,11 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   DateTime? _selectedDate;
   String? _selectedGender;
 
@@ -52,6 +61,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+    
     return Scaffold(
       body: Center(
         child: Padding(
@@ -81,6 +92,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   children: [
                     Expanded(
                       child: TextFormField(
+                        controller: _firstNameController,
                         decoration: InputDecoration(
                           labelText: 'First Name',
                           hintText: 'Enter your first name',
@@ -98,6 +110,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(width: 16),
                     Expanded(
                       child: TextFormField(
+                        controller: _lastNameController,
                         decoration: InputDecoration(
                           labelText: 'Last Name',
                           hintText: 'Enter your last name',
@@ -117,6 +130,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 16),
                 // Username Field
                 TextFormField(
+                  controller: _usernameController,
                   decoration: InputDecoration(
                     labelText: 'Username',
                     hintText: 'Enter your username',
@@ -134,6 +148,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 // Password Field
                 TextFormField(
                   obscureText: true,
+                  controller: _passwordController,
                   decoration: InputDecoration(
                     labelText: 'Password',
                     hintText: 'Enter your password',
@@ -151,6 +166,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 // Confirm Password Field
                 TextFormField(
                   obscureText: true,
+                  controller: _confirmPasswordController,
                   decoration: InputDecoration(
                     labelText: 'Password Confirmation',
                     hintText: 'Enter your password again',
@@ -188,7 +204,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           child: Text(
                             _selectedDate == null
                                 ? ''
-                                : DateFormat('dd/MM/yyyy').format(_selectedDate!),
+                                : DateFormat('yyyy-MM-dd').format(_selectedDate!),
                             style: const TextStyle(fontSize: 16),
                           ),
                         ),
@@ -233,8 +249,51 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 16),
                 // Register Button
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     // TODO: Register logic
+                    String username = _usernameController.text;
+                    String password1 = _passwordController.text;
+                    String password2 = _confirmPasswordController.text;
+                    String firstName = _firstNameController.text;
+                    String lastName = _lastNameController.text;
+                    String birthDate = '';
+                    if (_selectedDate != null) {
+                      birthDate = DateFormat('yyyy-MM-dd').format(_selectedDate!);
+                    }
+                    String gender = _selectedGender ?? '';
+
+                    final response = await request.postJson(
+                      "http://127.0.0.1:8000/auth/register/",
+                      jsonEncode({
+                        "username": username,
+                        "password1": password1,
+                        "password2": password2,
+                        "first_name": firstName,
+                        "last_name": lastName,
+                        "birth_date": birthDate,
+                        "gender": gender,
+                      }));
+                    
+                    if (context.mounted) {
+                      if (response['status'] == 'success') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Successfully registered!'),
+                          ),
+                        );
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginPage()),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(response['message'] ?? 'Failed to register!'),
+                          ),
+                        );
+                      }
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF01AAE8),

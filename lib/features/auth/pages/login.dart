@@ -2,6 +2,8 @@ import 'package:baket_mobile/app.dart';
 import 'package:baket_mobile/features/auth/pages/register.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const LoginApp());
@@ -23,11 +25,21 @@ class LoginApp extends StatelessWidget {
   }
 }
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+
     return Scaffold(
       body: Center(
         child: Padding(
@@ -54,6 +66,7 @@ class LoginPage extends StatelessWidget {
                 const SizedBox(height: 32),
                 // Username Field
                 TextFormField(
+                  controller: _usernameController,
                   decoration: InputDecoration(
                     labelText: 'Username',
                     hintText: 'Enter your username',
@@ -71,6 +84,7 @@ class LoginPage extends StatelessWidget {
                 // Password Field
                 TextFormField(
                   obscureText: true,
+                  controller: _passwordController,
                   decoration: InputDecoration(
                     labelText: 'Password',
                     hintText: 'Enter your password',
@@ -101,13 +115,53 @@ class LoginPage extends StatelessWidget {
                 const SizedBox(height: 16),
                 // Login Button
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     // TODO: Login logic
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const App()),
-                    );
-                  },
+                    String username = _usernameController.text;
+                    String password = _passwordController.text;
+                    final response = await request
+                        .login("http://127.0.0.1:8000/auth/login/", {
+                      'username': username,
+                      'password': password,
+                    });
+
+                    if (request.loggedIn) {
+                        String message = response['message'];
+                        String uname = response['username'];
+                        if (context.mounted) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const App()),
+                          );
+                          ScaffoldMessenger.of(context)
+                            ..hideCurrentSnackBar()
+                            ..showSnackBar(
+                              SnackBar(
+                                  content:
+                                      Text("$message Selamat datang, $uname.")),
+                            );
+                        }
+                      } else {
+                        if (context.mounted) {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Login Gagal'),
+                              content: Text(response['message']),
+                              actions: [
+                                TextButton(
+                                  child: const Text('OK'),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                      }
+                    },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF01AAE8),
                     minimumSize: const Size(double.infinity, 50),

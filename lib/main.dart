@@ -9,7 +9,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Running the app
-  runApp(const LoginApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -18,14 +18,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Provider(
-      create: (_) => CookieRequest(),
+      create: (_) {
+        CookieRequest request = CookieRequest();
+        return request;
+      },
       child: MaterialApp(
         title: 'Flutter App',
         theme: ThemeData(
           primarySwatch: Colors.blue,
           // ... other theme settings
         ),
-        home: const App(), // or your initial route
+        home: const LoginApp(), // or your initial route
       ),
     );
   }
