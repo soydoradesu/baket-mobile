@@ -1,3 +1,4 @@
+import 'package:baket_mobile/features/auth/pages/login.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -8,7 +9,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Running the app
-  runApp(const MyApp());
+  runApp(const LoginApp());
 }
 
 class MyApp extends StatelessWidget {
