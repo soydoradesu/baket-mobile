@@ -4,8 +4,10 @@ import 'dart:convert';
 import '../models/review_model.dart';
 import '../models/product_model.dart';
 import '../widgets/review_card.dart';
+import '../services/cart_service.dart';
+import 'package:provider/provider.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
 
-// Fetch Reviews Method
 Future<List<Review>> fetchReviews(String productId) async {
   try {
     final response = await http.get(
@@ -24,21 +26,36 @@ Future<List<Review>> fetchReviews(String productId) async {
 
 class ProductDetailPage extends StatefulWidget {
   final Product product;
-
-  const ProductDetailPage({required this.product, super.key});
+  const ProductDetailPage({required this.product});
 
   @override
-  _ProductDetailPageState createState() => _ProductDetailPageState();
+  State<ProductDetailPage> createState() => _ProductDetailPageState();
 }
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
+  late CartService cartService;
   late Future<List<Review>> reviewsFuture;
 
   @override
   void initState() {
     super.initState();
-    reviewsFuture = fetchReviews(
-        widget.product.id.toString()); // Fetch reviews using product ID
+    final request = context.read<CookieRequest>();
+    cartService = CartService(request);
+    reviewsFuture = fetchReviews(widget.product.id.toString());
+  }
+
+  void _addToCart() async {
+    final success = await cartService.addToCart(widget.product.id);
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Barang berhasil dimasukkan ke keranjang!')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Gagal memasukkan barang ke keranjang.')),
+      );
+    }
   }
 
   @override
@@ -54,6 +71,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Product details and buttons go here...
               // Product Details Card
               Card(
                 elevation: 4,
@@ -122,7 +140,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           ElevatedButton.icon(
-                            onPressed: () {},
+                            onPressed: _addToCart,
                             icon: const Icon(Icons.shopping_cart),
                             label: const Text('Masukkan Keranjang'),
                             style: ElevatedButton.styleFrom(
