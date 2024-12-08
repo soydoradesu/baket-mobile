@@ -253,7 +253,7 @@ class _ProductPageState extends State<ProductPage> {
                                               setState(() {});
                                             },
                                           );
-                                        }).toList(),
+                                        }),
                                         const SizedBox(height: 16),
                                         Row(
                                           mainAxisAlignment:

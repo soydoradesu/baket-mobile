@@ -5,7 +5,7 @@ import '../pages/product_detail_page.dart';
 class ProductCard extends StatelessWidget {
   final Product product;
 
-  const ProductCard({required this.product});
+  const ProductCard({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +13,8 @@ class ProductCard extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ProductDetailPage(product: product)),
+          MaterialPageRoute(
+              builder: (context) => ProductDetailPage(product: product)),
         );
       },
       child: Card(
@@ -23,7 +24,8 @@ class ProductCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(10)),
               child: Image.network(
                 product.image,
                 height: 150,
@@ -45,7 +47,8 @@ class ProductCard extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Text(
                 product.name,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),

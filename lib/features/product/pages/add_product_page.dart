@@ -123,7 +123,8 @@ class _AddProductPageState extends State<AddProductPage> {
                   items: _categories.map((String category) {
                     return DropdownMenuItem(
                       value: category,
-                      child: Text(category[0].toUpperCase() + category.substring(1)),
+                      child: Text(
+                          category[0].toUpperCase() + category.substring(1)),
                     );
                   }).toList(),
                   onChanged: (String? newValue) {
@@ -171,11 +172,11 @@ class _AddProductPageState extends State<AddProductPage> {
                             'name': _name,
                             'price': _price,
                             'category': _category,
-                            'image_url': _imageUrl,  // Include image URL
-                            'specs': _specs,         // Include specifications
+                            'image_url': _imageUrl, // Include image URL
+                            'specs': _specs, // Include specifications
                           }),
                         );
-                        
+
                         if (context.mounted) {
                           if (response['status'] == 'success') {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -187,7 +188,8 @@ class _AddProductPageState extends State<AddProductPage> {
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text("Failed to add product. Please try again."),
+                                content: Text(
+                                    "Failed to add product. Please try again."),
                               ),
                             );
                           }

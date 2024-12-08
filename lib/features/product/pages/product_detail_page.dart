@@ -1,59 +1,238 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../models/review_model.dart';
 import '../models/product_model.dart';
+import '../widgets/review_card.dart';
 
-class ProductDetailPage extends StatelessWidget {
+// Fetch Reviews Method
+Future<List<Review>> fetchReviews(String productId) async {
+  try {
+    final response = await http.get(
+        Uri.parse('http://localhost:8000/catalogue/review-json/$productId'));
+
+    if (response.statusCode == 200) {
+      return reviewFromJson(response.body);
+    } else {
+      throw Exception('Failed to load reviews: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error fetching reviews: $e');
+    rethrow;
+  }
+}
+
+class ProductDetailPage extends StatefulWidget {
   final Product product;
 
   const ProductDetailPage({required this.product, super.key});
 
   @override
+  _ProductDetailPageState createState() => _ProductDetailPageState();
+}
+
+class _ProductDetailPageState extends State<ProductDetailPage> {
+  late Future<List<Review>> reviewsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    reviewsFuture = fetchReviews(
+        widget.product.id.toString()); // Fetch reviews using product ID
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(product.name),
+        title: Text(widget.product.name),
         backgroundColor: const Color(0xFF01aae8),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Product Image
-            Image.network(
-              product.image,
-              height: 250,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                print('Error loading image: $error');
-                return Container(
-                  height: 250,
-                  color: Colors.grey[200],
-                  child: const Center(
-                    child: Icon(Icons.error_outline),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Product Details Card
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Product Image
+                      Center(
+                        child: Image.network(
+                          widget.product.image,
+                          height: 200,
+                          width: 200,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              height: 200,
+                              width: 200,
+                              color: Colors.grey[200],
+                              child: const Center(
+                                child: Icon(Icons.error_outline),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Product Name
+                      Text(
+                        widget.product.name,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      // Product Price
+                      Text(
+                        'Rp${widget.product.price}',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          color: Color(0xFF01aae8),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Category and Description
+                      const Text(
+                        'Kategori: ',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Deskripsi:',
+                        style: TextStyle(fontSize: 14),
+                      ),
+                      const SizedBox(height: 16),
+                      // Buttons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: () {},
+                            icon: const Icon(Icons.shopping_cart),
+                            label: const Text('Masukkan Keranjang'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF01aae8),
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: () {},
+                            icon: const Icon(Icons.favorite_border),
+                            label: const Text('Tambah ke Wishlist'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF01aae8),
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                );
-              },
-            ),
-            const SizedBox(height: 16),
-            // Product Name
-            Text(
-              product.name,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            // Product Price
-            Text(
-              'Rp${product.price}',
-              style: const TextStyle(fontSize: 20, color: Color(0xFF01aae8)),
-            ),
-            const SizedBox(height: 16),
-            // Additional Details (e.g., Specs)
-            // Assuming specs are part of the product model; if not, adjust accordingly
-            // Text(
-            //   product.specs,
-            //   style: const TextStyle(fontSize: 16),
-            // ),
-          ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              // Write Review Section
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Tulis Ulasan',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: List.generate(5, (index) {
+                          return Icon(
+                            Icons.star_border,
+                            color: Colors.yellow[700],
+                            size: 30,
+                          );
+                        }),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Apa pendapat Anda tentang produk ini?',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF01aae8),
+                        ),
+                        child: const Text(
+                          'Kirim',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              // Reviews Section with Filter Button
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Filter Ulasan',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.filter_alt_outlined),
+                    color: const Color(0xFF01aae8),
+                  ),
+                ],
+              ),
+              FutureBuilder<List<Review>>(
+                future: reviewsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                    return ReviewCard(reviews: snapshot.data!);
+                  } else {
+                    return const Text('No reviews yet.');
+                  }
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
