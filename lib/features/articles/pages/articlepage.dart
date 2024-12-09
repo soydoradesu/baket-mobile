@@ -6,6 +6,15 @@ class ArticlePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+      title: const Text('Article Page'),
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+    ),
       backgroundColor: const Color(0xFFFBFBF9),
       body: SingleChildScrollView(
         child: Padding(
