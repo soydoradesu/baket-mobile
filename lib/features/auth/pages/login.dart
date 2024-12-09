@@ -1,9 +1,11 @@
 import 'package:baket_mobile/app.dart';
 import 'package:baket_mobile/features/auth/pages/register.dart';
+import 'package:baket_mobile/navbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:get/get.dart';
 
 void main() {
   runApp(const LoginApp());
@@ -129,11 +131,12 @@ class _LoginPageState extends State<LoginPage> {
                         String message = response['message'];
                         String uname = response['username'];
                         if (context.mounted) {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const App()),
-                          );
+                          Get.offAll(() => const NavigationMenu()); // Replaces the current route stack entirely.
+                          // Navigator.pushReplacement(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //       builder: (context) => const App()),
+                          // );
                           ScaffoldMessenger.of(context)
                             ..hideCurrentSnackBar()
                             ..showSnackBar(

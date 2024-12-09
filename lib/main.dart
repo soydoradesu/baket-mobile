@@ -1,5 +1,6 @@
 import 'package:baket_mobile/features/auth/pages/login.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'app.dart';
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
         CookieRequest request = CookieRequest();
         return request;
       },
-      child: MaterialApp(
+      child: GetMaterialApp(
         title: 'Flutter App',
         theme: ThemeData(
           primarySwatch: Colors.blue,
