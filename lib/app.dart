@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:baket_mobile/features/articles/pages/test.dart';
+import 'package:baket_mobile/features/articles/pages/articlemain.dart';
 import 'package:baket_mobile/features/product/pages/product_page.dart';
 
 class App extends StatelessWidget {
