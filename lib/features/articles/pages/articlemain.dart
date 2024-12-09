@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:baket_mobile/features/articles/pages/articlepage.dart';
 
 class ArticleMain extends StatefulWidget {
   const ArticleMain({super.key});
@@ -55,43 +56,52 @@ class _ArticleMain extends State<ArticleMain> {
             ),
             const SizedBox(height: 16.0),
             Center(
-              child: Container(
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "BP Batam Dukung Penuh Pengembangan Investasi Sektor Inovasi Teknologi di Indonesia",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 4.0),
-                    Text("Posted by: Rhuuzi Wiranata"),
-                    SizedBox(height: 8.0),
-                    Row(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(right: 4.0),
-                          child: Icon(Icons.thumb_up,),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(right: 16.0),
-                          child: Text("0"),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(right: 4.0),
-                          child: Icon(Icons.comment,),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(right: 0.0),
-                          child: Text("0"),
-                        ),
-                      ],
-                    ),
-                  ],
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ArticlePage()),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "BP Batam Dukung Penuh Pengembangan Investasi Sektor Inovasi Teknologi di Indonesia",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 4.0),
+                      Text("Posted by: Rhuuzi Wiranata"),
+                      SizedBox(height: 8.0),
+                      Row(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(right: 4.0),
+                            child: Icon(Icons.thumb_up,),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(right: 16.0),
+                            child: Text("0"),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(right: 4.0),
+                            child: Icon(Icons.comment,),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(right: 0.0),
+                            child: Text("0"),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
