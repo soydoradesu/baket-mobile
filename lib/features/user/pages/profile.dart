@@ -1,56 +1,61 @@
-import 'package:baket_mobile/features/auth/pages/login.dart';
-import 'package:baket_mobile/features/user/models/user_profile.dart';
+// lib/features/user/pages/profile_page.dart
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
-import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:intl/intl.dart';
 
-void main() {
-  runApp(const ProfileApp());
-}
+import '../models/user_profile.dart';
+import '../services/profile_service.dart';
+import '../dialogs/edit_dialogs.dart';
+import '../widgets/biodata_item.dart';
 
-class ProfileApp extends StatelessWidget {
+import 'package:baket_mobile/features/auth/pages/login.dart'; // Adjust if needed
+
+class ProfileApp extends StatefulWidget {
   const ProfileApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Profile Page',
-      theme: ThemeData(
-        fontFamily: GoogleFonts.raleway().fontFamily,
-        primarySwatch: Colors.blue,
-      ),
-      home: const ProfilePage(),
-    );
-  }
+  State<ProfileApp> createState() => _ProfileAppState();
 }
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+class _ProfileAppState extends State<ProfileApp> {
+  late Future<UserProfile> futureProfile;
+  late ProfileService profileService;
+
+  static const String baseUrl = 'http://127.0.0.1:8000';
+  static const String fetchProfileUrl = '$baseUrl/user/json/';
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
-}
+  void initState() {
+    super.initState();
+    final request = context.read<CookieRequest>();
+    profileService = ProfileService(request);
+    futureProfile = fetchUserProfile(request);
+  }
 
-class _ProfilePageState extends State<ProfilePage> {
   Future<UserProfile> fetchUserProfile(CookieRequest request) async {
-    final response = await request.get('http://127.0.0.1:8000/user/json/');
-
+    final response = await request.get(fetchProfileUrl);
     return UserProfile.fromJson(response);
+  }
+
+  Future<void> refreshProfile() async {
+    final request = context.read<CookieRequest>();
+    setState(() {
+      futureProfile = fetchUserProfile(request);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
         backgroundColor: const Color(0xFF01AAE8),
       ),
       body: FutureBuilder<UserProfile>(
-        future: fetchUserProfile(request),
+        future: futureProfile,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -66,7 +71,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-  
+
   Widget buildProfilePage(BuildContext context, UserProfile user, CookieRequest request) {
     return SingleChildScrollView(
       child: Padding(
@@ -87,38 +92,62 @@ class _ProfilePageState extends State<ProfilePage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Text(
-                          '${user.firstName} ${user.lastName}',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                    InkWell(
+                      onTap: () async {
+                        final result = await showNameDialog(
+                          context,
+                          currentFirst: user.firstName,
+                          currentLast: user.lastName,
+                        );
+                        if (result != null) {
+                          final updated = await profileService.updateName(
+                            result['first_name']!,
+                            result['last_name']!,
+                          );
+                          if (updated) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Name updated successfully!')),
+                            );
+                            await refreshProfile();
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Failed to update name.')),
+                            );
+                          }
+                        }
+                      },
+                      child: Row(
+                        children: [
+                          Text(
+                            '${user.firstName} ${user.lastName}',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        const Icon(
-                          Icons.arrow_forward_ios,
-                          size: 16,
-                          color: Colors.black54,
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          const Icon(
+                            Icons.arrow_forward_ios,
+                            size: 16,
+                            color: Colors.black54,
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: const Color(0xFF01AAE8),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         user.isSuperuser
-                        ? 'Superuser'
-                        : user.isStaff
-                            ? 'Staff'
-                            : 'Member',
+                            ? 'Superuser'
+                            : user.isStaff
+                                ? 'Staff'
+                                : 'Member',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -152,7 +181,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      // Navigate to wishlist page
+                      // Navigate to wishlist page if needed
                     },
                     child: const Text(
                       'beli sekarang!',
@@ -168,10 +197,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             const SizedBox(height: 32),
 
-            const Divider(
-              thickness: 1, 
-              height: 32
-            ), // Horizontal line above
+            const Divider(thickness: 1, height: 32),
 
             const Text(
               'Biodata Diri',
@@ -186,29 +212,52 @@ class _ProfilePageState extends State<ProfilePage> {
               label: 'Username',
               value: user.username,
               onTap: () {
-                // Navigate to username edit
+                // Update username if you have that endpoint
               },
             ),
             BiodataItem(
               label: 'Tanggal Lahir',
               value: DateFormat('dd-MM-yyyy').format(user.birthDate),
-              onTap: () {
-                // Navigate to birthdate edit
+              onTap: () async {
+                final selectedDate = await showDatePickerDialog(context, user.birthDate);
+                if (selectedDate != null && selectedDate != user.birthDate) {
+                  final updated = await profileService.updateBirthDate(selectedDate);
+                  if (updated) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Birth date updated successfully!')),
+                    );
+                    await refreshProfile();
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Failed to update birth date.')),
+                    );
+                  }
+                }
               },
             ),
             BiodataItem(
               label: 'Jenis Kelamin',
               value: user.gender,
-              onTap: () {
-                // Navigate to gender edit
+              onTap: () async {
+                final newGender = await showGenderDialog(context, user.gender);
+                if (newGender != null && newGender.isNotEmpty && newGender != user.gender) {
+                  final updated = await profileService.updateGender(newGender);
+                  if (updated) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Gender updated successfully!')),
+                    );
+                    await refreshProfile();
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Failed to update gender.')),
+                    );
+                  }
+                }
               },
             ),
 
-            const Divider(
-              thickness: 1, 
-              height: 32
-            ), // Horizontal line above
-            
+            const Divider(thickness: 1, height: 32),
+
             const Text(
               'Kontak User',
               style: TextStyle(
@@ -221,112 +270,86 @@ class _ProfilePageState extends State<ProfilePage> {
             BiodataItem(
               label: 'Email',
               value: user.email ?? '-',
-              onTap: () {
-                // Navigate to email edit
+              onTap: () async {
+                final newEmail = await showSingleFieldDialog(
+                  context,
+                  title: 'Email',
+                  initialValue: user.email ?? '',
+                  inputType: TextInputType.emailAddress,
+                );
+                if (newEmail != null && newEmail.isNotEmpty) {
+                  final updated = await profileService.updateEmail(newEmail);
+                  if (updated) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Email updated successfully!')),
+                    );
+                    await refreshProfile();
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Failed to update email.')),
+                    );
+                  }
+                }
               },
             ),
             BiodataItem(
               label: 'Nomor Hp',
               value: user.phoneNumber ?? '-',
-              onTap: () {
-                // Navigate to phone number edit
+              onTap: () async {
+                final newPhone = await showSingleFieldDialog(
+                  context,
+                  title: 'Phone Number',
+                  initialValue: user.phoneNumber ?? '',
+                  inputType: TextInputType.phone,
+                );
+                if (newPhone != null && newPhone.isNotEmpty) {
+                  final updated = await profileService.updatePhone(newPhone);
+                  if (updated) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Phone number updated successfully!')),
+                    );
+                    await refreshProfile();
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Failed to update phone.')),
+                    );
+                  }
+                }
               },
             ),
             const SizedBox(height: 32),
-            // Logout Button
+
             Center(
               child: ElevatedButton.icon(
                 onPressed: () async {
-                  // Handle logout
-                  final response = await request.logout(
-                  "http://127.0.0.1:8000/auth/logout/");
+                  final response = await profileService.logoutUser();
                   String message = response["message"];
-
                   if (context.mounted) {
                     if (response["status"]) {
                       String uname = response["username"];
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text("$message Sampai jumpa, $uname."),
-                      ));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("$message Sampai jumpa, $uname.")),
+                      );
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (context) => const LoginPage()),
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(message),
-                        ),
+                        SnackBar(content: Text(message)),
                       );
                     }
                   }
                 },
                 icon: const Icon(Icons.logout, color: Colors.black54),
-                label: const Text(
-                  'Keluar Akun',
-                  style: TextStyle(color: Colors.black),
-                ),
+                label: const Text('Keluar Akun', style: TextStyle(color: Colors.black)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.grey[100],
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 32, vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// Reusable Biodata Item Widget
-class BiodataItem extends StatelessWidget {
-  final String label;
-  final String value;
-  final VoidCallback? onTap;
-
-  const BiodataItem({
-    required this.label,
-    required this.value,
-    this.onTap,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Label Section
-            Expanded(
-              flex: 3,
-              child: Text(
-                label,
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-              ),
-            ),
-            // Value Section
-            Expanded(
-              flex: 4,
-              child: Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-            // Arrow Icon
-            const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
           ],
         ),
       ),
