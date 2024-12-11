@@ -27,6 +27,7 @@ class MyApp extends StatelessWidget {
         title: 'Flutter App',
         theme: ThemeData(
           primarySwatch: Colors.blue,
+          colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue),
           // ... other theme settings
         ),
         home: const LoginApp(), // or your initial route
