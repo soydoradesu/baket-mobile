@@ -50,10 +50,10 @@ class _ProfileAppState extends State<ProfileApp> {
     final request = context.watch<CookieRequest>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-        backgroundColor: const Color(0xFF01AAE8),
-      ),
+      // appBar: AppBar(
+      //   title: const Text('Profile'),
+      //   backgroundColor: const Color(0xFF01AAE8),
+      // ),
       body: FutureBuilder<UserProfile>(
         future: futureProfile,
         builder: (context, snapshot) {

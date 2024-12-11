@@ -88,10 +88,10 @@ class _ProductPageState extends State<ProductPage> {
     final request = context.watch<CookieRequest>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Product Catalogue'),
-        backgroundColor: const Color(0xFF01aae8),
-      ),
+      // appBar: AppBar(
+      //   title: const Text('Product Catalogue'),
+      //   backgroundColor: const Color(0xFF01aae8),
+      // ),
       body: Column(
         children: [
           // Add Product Button (for admin)
