@@ -5,6 +5,7 @@ import '../models/review_model.dart';
 import '../models/product_model.dart';
 import '../widgets/review_card.dart';
 import '../services/cart_service.dart';
+import '../services/wishlist_service.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 
@@ -36,12 +37,20 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   late CartService cartService;
   late Future<List<Review>> reviewsFuture;
 
+  late WishlistService wishlistService;
+  bool isInWishlist = false;
+
   @override
   void initState() {
     super.initState();
     final request = context.read<CookieRequest>();
     cartService = CartService(request);
     reviewsFuture = fetchReviews(widget.product.id.toString());
+
+    wishlistService = WishlistService(request);
+    if (request.loggedIn) {
+      _fetchWishlistStatus();
+    } 
   }
 
   void _addToCart() async {
@@ -54,6 +63,30 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Gagal memasukkan barang ke keranjang.')),
+      );
+    }
+  }
+
+  void _fetchWishlistStatus() async {
+    final status = await wishlistService.fetchIsInWishlist(widget.product.id.toString());
+    setState(() {
+      isInWishlist = status;
+    });
+  }
+
+  Future<void> _toggleWishlist() async {
+    final newStatus = await wishlistService.toggleWishlist(widget.product.id.toString());
+    setState(() {
+      isInWishlist = newStatus;
+    });
+
+    if (newStatus) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Produk ditambahkan ke Wishlist!')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Produk dihapus dari Wishlist.')),
       );
     }
   }
@@ -149,11 +182,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                             ),
                           ),
                           ElevatedButton.icon(
-                            onPressed: () {},
-                            icon: const Icon(Icons.favorite_border),
-                            label: const Text('Tambah ke Wishlist'),
+                            onPressed: _toggleWishlist,
+                            icon: Icon(
+                              isInWishlist ? Icons.favorite : Icons.favorite_border
+                            ),
+                            label: Text(
+                              isInWishlist ? 'Hapus dari Wishlist' : 'Tambah ke Wishlist',
+                            ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF01aae8),
+                              backgroundColor: isInWishlist ? const Color(0xFFf87171) : const Color(0xFF01aae8),
                               foregroundColor: Colors.white,
                             ),
                           ),
