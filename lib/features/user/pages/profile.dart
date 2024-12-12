@@ -1,4 +1,5 @@
 // lib/features/user/pages/profile_page.dart
+import 'package:baket_mobile/features/wishlist/pages/wishlist_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -160,30 +161,39 @@ class _ProfileAppState extends State<ProfileApp> {
             ),
             const SizedBox(height: 32),
             // Wishlist Section
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Row(
-                    children: [
-                      Icon(Icons.favorite, color: Colors.black),
-                      SizedBox(width: 8),
-                      Text(
-                        '9 item dalam wishlist',
-                        style: TextStyle(fontSize: 14),
-                      ),
-                    ],
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      // Navigate to wishlist page if needed
-                    },
-                    child: const Text(
+
+            InkWell(
+              onTap: () {
+                // Handle Tap Here
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const WishlistPage()),
+                );
+              },
+              splashColor: Colors.blue.withOpacity(0.3),   // Customize splash color
+              highlightColor: Colors.blue.withOpacity(0.1), // Customize highlight color
+              borderRadius: BorderRadius.circular(12), // To match container radius
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.favorite, color: Colors.black),
+                        SizedBox(width: 8),
+                        Text(
+                          '9 item dalam wishlist',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                      ],
+                    ),
+                    Text(
                       'beli sekarang!',
                       style: TextStyle(
                         fontSize: 14,
@@ -191,13 +201,14 @@ class _ProfileAppState extends State<ProfileApp> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
+
             const SizedBox(height: 32),
 
-            const Divider(thickness: 1, height: 32),
+            Divider(thickness: 1, height: 32, color: Colors.grey[300]),
 
             const Text(
               'Biodata Diri',
@@ -256,7 +267,7 @@ class _ProfileAppState extends State<ProfileApp> {
               },
             ),
 
-            const Divider(thickness: 1, height: 32),
+            Divider(thickness: 1, height: 32, color: Colors.grey[300]),
 
             const Text(
               'Kontak User',
