@@ -27,17 +27,22 @@ class BiodataItem extends StatelessWidget {
               flex: 3,
               child: Text(
                 label,
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[600],
+                ),
               ),
             ),
+
             // Value Section
             Expanded(
-              flex: 4,
+              flex: 5,
               child: Text(
                 value,
                 style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
                   color: Colors.black,
                 ),
               ),
