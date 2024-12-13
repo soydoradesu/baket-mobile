@@ -1,9 +1,13 @@
 // lib/features/user/pages/profile_page.dart
 import 'package:baket_mobile/features/wishlist/pages/wishlist_page.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:baket_mobile/core/constants/_constants.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart'; // For image picking
+import 'dart:io'; // For handling File
 
 import '../models/user_profile.dart';
 import '../services/profile_service.dart';
@@ -23,7 +27,7 @@ class _ProfileAppState extends State<ProfileApp> {
   late Future<UserProfile> futureProfile;
   late ProfileService profileService;
 
-  static const String baseUrl = 'http://127.0.0.1:8000';
+  static const String baseUrl = Endpoints.baseUrl;
   static const String fetchProfileUrl = '$baseUrl/user/json/';
 
   @override
@@ -44,6 +48,68 @@ class _ProfileAppState extends State<ProfileApp> {
     setState(() {
       futureProfile = fetchUserProfile(request);
     });
+  }
+
+    /// Picks an image from the gallery or camera and uploads it.
+  Future<void> _pickAndUploadImage(BuildContext context) async {
+    final picker = ImagePicker();
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Gallery'),
+              onTap: () async {
+                Navigator.of(context).pop();
+                final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+                if (pickedFile != null) {
+                  await _uploadImage(File(pickedFile.path));
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_camera),
+              title: const Text('Camera'),
+              onTap: () async {
+                Navigator.of(context).pop();
+                final pickedFile = await picker.pickImage(source: ImageSource.camera);
+                if (pickedFile != null) {
+                  await _uploadImage(File(pickedFile.path));
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Uploads the selected image to the backend.
+  Future<void> _uploadImage(File imageFile) async {
+    // Show a loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    final success = await profileService.uploadProfilePicture(imageFile);
+
+    // Hide the loading indicator
+    Navigator.of(context).pop();
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profile picture updated successfully!')),
+      );
+      await refreshProfile(); // Refresh the profile to show the new picture
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to update profile picture.')),
+      );
+    }
   }
 
   @override
@@ -83,12 +149,42 @@ class _ProfileAppState extends State<ProfileApp> {
             // Profile Section
             Row(
               children: [
-                CircleAvatar(
-                  backgroundImage: NetworkImage(
-                    'http://127.0.0.1:8000${user.profilePicture}',
-                  ),
-                  radius: 50,
+                Stack(
+                  alignment: Alignment.center,
+                  clipBehavior: Clip.none,
+                  children: [
+                    CircleAvatar(
+                      backgroundImage: NetworkImage(
+                        '$baseUrl${user.profilePicture}'
+                      ),
+                      radius: 50,
+                    ),
+                    
+                    Positioned(
+                      bottom: -12,
+                      child: InkWell(
+                        onTap: () async {
+                          // Handle edit profile picture action
+                          await _pickAndUploadImage(context);
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.grey[300]!, width: 1),
+                          ),
+                          padding: const EdgeInsets.all(4),
+                          child: const Icon(
+                            Icons.edit,
+                            size: 20,
+                            color: Color(0xFF01AAE8),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
+
                 const SizedBox(width: 16),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,9 +217,9 @@ class _ProfileAppState extends State<ProfileApp> {
                         children: [
                           Text(
                             '${user.firstName} ${user.lastName}',
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
+                            style: GoogleFonts.raleway(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700,
                               color: Colors.black,
                             ),
                           ),
@@ -138,7 +234,7 @@ class _ProfileAppState extends State<ProfileApp> {
                     ),
                     const SizedBox(height: 4),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                       decoration: BoxDecoration(
                         color: const Color(0xFF01AAE8),
                         borderRadius: BorderRadius.circular(12),
@@ -149,9 +245,10 @@ class _ProfileAppState extends State<ProfileApp> {
                             : user.isStaff
                                 ? 'Staff'
                                 : 'Member',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: GoogleFonts.raleway(
                           fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
                         ),
                       ),
                     ),
@@ -175,30 +272,33 @@ class _ProfileAppState extends State<ProfileApp> {
               highlightColor: Colors.blue.withOpacity(0.1), // Customize highlight color
               borderRadius: BorderRadius.circular(12), // To match container radius
               child: Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                 decoration: BoxDecoration(
                   color: Colors.grey[100],
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.favorite, color: Colors.black),
-                        SizedBox(width: 8),
+                        const Icon(Icons.favorite, color: Colors.black),
+                        const SizedBox(width: 16),
                         Text(
-                          '9 item dalam wishlist',
-                          style: TextStyle(fontSize: 14),
+                          '${user.wishlistCount} dalam wishlist',
+                          style: GoogleFonts.raleway(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ],
                     ),
                     Text(
                       'beli sekarang!',
-                      style: TextStyle(
+                      style: GoogleFonts.raleway(
                         fontSize: 14,
-                        color: Color(0xFF01AAE8),
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF01AAE8),
                       ),
                     ),
                   ],
@@ -210,12 +310,12 @@ class _ProfileAppState extends State<ProfileApp> {
 
             Divider(thickness: 1, height: 32, color: Colors.grey[300]),
 
-            const Text(
+            Text(
               'Biodata Diri',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF01AAE8),
+              style: GoogleFonts.raleway(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF01AAE8),
               ),
             ),
             const SizedBox(height: 8),
@@ -269,12 +369,12 @@ class _ProfileAppState extends State<ProfileApp> {
 
             Divider(thickness: 1, height: 32, color: Colors.grey[300]),
 
-            const Text(
+            Text(
               'Kontak User',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF01AAE8),
+              style: GoogleFonts.raleway(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF01AAE8),
               ),
             ),
             const SizedBox(height: 8),
@@ -328,7 +428,7 @@ class _ProfileAppState extends State<ProfileApp> {
                 }
               },
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 64),
 
             Center(
               child: ElevatedButton.icon(
