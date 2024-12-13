@@ -1,4 +1,5 @@
 import 'package:baket_mobile/app.dart';
+import 'package:baket_mobile/core/constants/_constants.dart';
 import 'package:baket_mobile/features/auth/pages/register.dart';
 import 'package:baket_mobile/navbar.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +38,9 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  static const String baseUrl = Endpoints.baseUrl;
+  static const String loginUrl = '$baseUrl/auth/login/';
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +126,7 @@ class _LoginPageState extends State<LoginPage> {
                     String username = _usernameController.text;
                     String password = _passwordController.text;
                     final response = await request
-                        .login("http://127.0.0.1:8000/auth/login/", {
+                        .login(loginUrl, {
                       'username': username,
                       'password': password,
                     });

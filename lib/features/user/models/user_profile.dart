@@ -19,6 +19,7 @@ class UserProfile {
   bool isStaff;
   bool isSuperuser;
   String profilePicture;
+  int wishlistCount;
 
   UserProfile({
     required this.username,
@@ -31,6 +32,7 @@ class UserProfile {
     required this.isStaff,
     required this.isSuperuser,
     required this.profilePicture,
+    required this.wishlistCount,
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
@@ -48,6 +50,7 @@ class UserProfile {
     isStaff: json["is_staff"],
     isSuperuser: json["is_superuser"],
     profilePicture: json["profile_picture"],
+    wishlistCount: json["wishlist_count"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -61,5 +64,6 @@ class UserProfile {
     "is_staff": isStaff,
     "is_superuser": isSuperuser,
     "profile_picture": profilePicture,
+    "wishlist_count": wishlistCount,
   };
 }
