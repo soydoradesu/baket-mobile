@@ -21,6 +21,7 @@ dependencies:
   intl: ^0.17.0
   lucide_icons: ^0.257.0
   get: ^4.6.6
+  super_tooltip: ^2.0.9
 
 dev_dependencies:
   build_runner: ^2.4.11
