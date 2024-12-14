@@ -1,3 +1,4 @@
+import 'package:baket_mobile/core/constants/_constants.dart';
 import 'package:flutter/material.dart';
 // import '../models/product_model.dart';
 import 'package:baket_mobile/features/product/models/product_model.dart';
@@ -17,6 +18,8 @@ class _WishlistPageState extends State<WishlistPage> {
   String searchQuery = '';
   List<String> selectedCategories = [];
   String? sortOption;
+
+  static const String baseUrl = Endpoints.baseUrl;
 
   // List of available categories (should match Django's CATEGORY_CHOICES)
   final List<String> categories = [
@@ -45,7 +48,7 @@ class _WishlistPageState extends State<WishlistPage> {
       }
 
       // Convert query parameters to URL
-      Uri uri = Uri.parse('http://127.0.0.1:8000/wishlist/json/').replace(queryParameters: {
+      Uri uri = Uri.parse('$baseUrl/wishlist/json/').replace(queryParameters: {
         ...queryParams.map((key, value) => MapEntry(key, value is List ? value.join(',') : value)),
       });
 

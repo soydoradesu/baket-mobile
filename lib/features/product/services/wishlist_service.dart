@@ -2,17 +2,21 @@
 
 // import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:baket_mobile/core/constants/_constants.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 
 class WishlistService {
   final CookieRequest request;
+  static const  String baseUrl = Endpoints.baseUrl;
+  static const String isInWishlistUrl = '$baseUrl/wishlist/is_in_wishlist/';
+  static const String wishlistToggleUrl = '$baseUrl/wishlist/toggle-api/';
 
   WishlistService(this.request);
 
   Future<bool> fetchIsInWishlist(String productId) async {
     try {
       final response = await request.get(
-        'http://127.0.0.1:8000/wishlist/is_in_wishlist/$productId/'
+        '$isInWishlistUrl$productId/'
       );
 
       // Since response is a Map, directly access the key
@@ -31,7 +35,7 @@ class WishlistService {
   Future<bool> toggleWishlist(String productId) async {
     try {
       final response = await request.post(
-        'http://127.0.0.1:8000/wishlist/toggle-api/',
+        wishlistToggleUrl,
         {'product_id': productId}
       );
 
