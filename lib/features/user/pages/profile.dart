@@ -1,4 +1,5 @@
 // lib/features/user/pages/profile_page.dart
+import 'package:baket_mobile/features/user/widgets/custom_super_tooltip.dart';
 import 'package:baket_mobile/features/wishlist/pages/wishlist_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,6 +9,7 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart'; // For image picking
 import 'dart:io'; // For handling File
+import 'package:super_tooltip/super_tooltip.dart';
 
 import '../models/user_profile.dart';
 import '../services/profile_service.dart';
@@ -26,6 +28,14 @@ class ProfileApp extends StatefulWidget {
 class _ProfileAppState extends State<ProfileApp> {
   late Future<UserProfile> futureProfile;
   late ProfileService profileService;
+
+  // Tooltip controllers
+  final _biodataTooltipController = SuperTooltipController();
+  final _kontakTooltipController = SuperTooltipController();
+  static const String biodataTooltipContent =
+  'This section displays your personal information such as username, date of birth, and gender. Tap on any field to edit and keep your details accurate.';
+  static const String kontakTooltipContent = 
+  'This section contains your contact details like email and phone number. Keeping them updated ensures smooth communication and account recovery.';
 
   static const String baseUrl = Endpoints.baseUrl;
   static const String fetchProfileUrl = '$baseUrl/user/json/';
@@ -112,29 +122,46 @@ class _ProfileAppState extends State<ProfileApp> {
     }
   }
 
+  Future<bool>? _willPopCallback() async {
+    // If the tooltip is open we don't pop the page on a backbutton press
+    // but close the ToolTip
+    if (_biodataTooltipController.isVisible) {
+      await _biodataTooltipController.hideTooltip();
+      return false;
+    }
+    if (_kontakTooltipController.isVisible) {
+      await _kontakTooltipController.hideTooltip();
+      return false;
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
 
-    return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text('Profile'),
-      //   backgroundColor: const Color(0xFF01AAE8),
-      // ),
-      body: FutureBuilder<UserProfile>(
-        future: futureProfile,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData) {
-            final user = snapshot.data!;
-            return buildProfilePage(context, user, request);
-          } else {
-            return const Center(child: Text('No data available'));
-          }
-        },
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) => _willPopCallback,
+      child: Scaffold(
+        // appBar: AppBar(
+        //   title: const Text('Profile'),
+        //   backgroundColor: const Color(0xFF01AAE8),
+        // ),
+        body: FutureBuilder<UserProfile>(
+          future: futureProfile,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (snapshot.hasData) {
+              final user = snapshot.data!;
+              return buildProfilePage(context, user, request);
+            } else {
+              return const Center(child: Text('No data available'));
+            }
+          },
+        ),
       ),
     );
   }
@@ -310,13 +337,24 @@ class _ProfileAppState extends State<ProfileApp> {
 
             Divider(thickness: 1, height: 32, color: Colors.grey[300]),
 
-            Text(
-              'Biodata Diri',
-              style: GoogleFonts.raleway(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF01AAE8),
-              ),
+            Row(
+              children: [
+                Text(
+                  'Biodata Diri',
+                  style: GoogleFonts.raleway(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF01AAE8),
+                  ),
+                ),
+
+                const SizedBox(width: 10),
+
+                CustomSuperTooltip(
+                  tooltipText: biodataTooltipContent,
+                  controller: _biodataTooltipController,
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             BiodataItem(
@@ -369,13 +407,24 @@ class _ProfileAppState extends State<ProfileApp> {
 
             Divider(thickness: 1, height: 32, color: Colors.grey[300]),
 
-            Text(
-              'Kontak User',
-              style: GoogleFonts.raleway(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF01AAE8),
-              ),
+            Row(
+              children: [
+                Text(
+                  'Kontak User',
+                  style: GoogleFonts.raleway(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF01AAE8),
+                  ),
+                ),
+                
+                const SizedBox(width: 10),
+
+                CustomSuperTooltip(
+                  tooltipText: kontakTooltipContent,
+                  controller: _kontakTooltipController,
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             BiodataItem(
@@ -456,7 +505,7 @@ class _ProfileAppState extends State<ProfileApp> {
                 label: const Text('Keluar Akun', style: TextStyle(color: Colors.black)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.grey[100],
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
               ),
