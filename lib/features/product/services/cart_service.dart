@@ -10,7 +10,7 @@ class CartService {
 
   // Fetch cart items
   Future<List<CartItem>> fetchCartItems() async {
-    final response = await request.get('http://localhost:8000/catalogue/cart/');
+    final response = await request.get('http://localhost:8000/catalogue/cart-api/');
     if (response == null) return [];
 
     // The response is expected to be HTML rendered by Django.
