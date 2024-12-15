@@ -323,6 +323,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.23"
+  flutter_rating_stars:
+    dependency: "direct main"
+    description:
+      name: flutter_rating_stars
+      sha256: "09dfa831aac2e5128fe70c5a8bd63ff4463180d5ff8545f7379c5b209d22ce1d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -349,6 +357,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
+  get:
+    dependency: "direct main"
+    description:
+      name: get
+      sha256: e4e7335ede17452b391ed3b2ede016545706c01a02292a6c97619705e7d2a85e
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.6.6"
   glob:
     dependency: transitive
     description:
@@ -557,6 +573,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.0"
+  lucide_icons:
+    dependency: "direct main"
+    description:
+      name: lucide_icons
+      sha256: ad24d0fd65707e48add30bebada7d90bff2a1bba0a72d6e9b19d44246b0e83c4
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.257.0"
   macros:
     dependency: transitive
     description:
@@ -874,6 +898,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
+  super_tooltip:
+    dependency: "direct main"
+    description:
+      name: super_tooltip
+      sha256: "55c0764554c961846d489503b76a1fc33ec2120bd7407266b77a34abbf3ed471"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.9"
   term_glyph:
     dependency: transitive
     description:

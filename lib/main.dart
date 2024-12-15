@@ -1,7 +1,9 @@
 import 'package:baket_mobile/features/auth/pages/login.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'app.dart';
 
 Future<void> main() async {
@@ -22,13 +24,17 @@ class MyApp extends StatelessWidget {
         CookieRequest request = CookieRequest();
         return request;
       },
-      child: MaterialApp(
+      child: GetMaterialApp(
         title: 'Flutter App',
         theme: ThemeData(
+          textTheme: GoogleFonts.ralewayTextTheme(
+            Theme.of(context).textTheme,
+          ),
           primarySwatch: Colors.blue,
+          colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue),
           // ... other theme settings
         ),
-        home: const LoginApp(), // or your initial route
+        home: const LoginApp(),
       ),
     );
   }

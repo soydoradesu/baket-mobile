@@ -1,22 +1,25 @@
+import 'package:baket_mobile/core/constants/_constants.dart';
 import 'package:flutter/material.dart';
-import '../models/product_model.dart';
+// import '../models/product_model.dart';
+import 'package:baket_mobile/features/product/models/product_model.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
-import '../widgets/product_card.dart';
-import 'add_product_page.dart';
+import '../widgets/wishlist_card.dart';
 
-class ProductPage extends StatefulWidget {
-  const ProductPage({super.key});
+class WishlistPage extends StatefulWidget {
+  const WishlistPage({super.key});
 
   @override
-  State<ProductPage> createState() => _ProductPageState();
+  State<WishlistPage> createState() => _WishlistPageState();
 }
 
-class _ProductPageState extends State<ProductPage> {
+class _WishlistPageState extends State<WishlistPage> {
   // State variables for search and filters
   String searchQuery = '';
   List<String> selectedCategories = [];
   String? sortOption;
+
+  static const String baseUrl = Endpoints.baseUrl;
 
   // List of available categories (should match Django's CATEGORY_CHOICES)
   final List<String> categories = [
@@ -45,11 +48,7 @@ class _ProductPageState extends State<ProductPage> {
       }
 
       // Convert query parameters to URL
-      // Uri uri = Uri.parse('http://localhost:8000/catalogue/prod-json/').replace(queryParameters: {
-      //   ...queryParams.map((key, value) => MapEntry(key, value is List ? value.join(',') : value)),
-      // });
-
-      Uri uri = Uri.parse('http://127.0.0.1:8000/catalogue/prod-json/').replace(queryParameters: {
+      Uri uri = Uri.parse('$baseUrl/wishlist/json/').replace(queryParameters: {
         ...queryParams.map((key, value) => MapEntry(key, value is List ? value.join(',') : value)),
       });
 
@@ -92,37 +91,37 @@ class _ProductPageState extends State<ProductPage> {
     final request = context.watch<CookieRequest>();
 
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text('Product Catalogue'),
-      //   backgroundColor: const Color(0xFF01aae8),
-      // ),
+      appBar: AppBar(
+        title: const Text('Wishlist'),
+        backgroundColor: const Color(0xFF01aae8),
+      ),
       body: Column(
         children: [
           // Add Product Button (for admin)
           // if (request.loggedIn && request.jsonData?['is_staff'] == true)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: ElevatedButton(
-                onPressed: () async {
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const AddProductPage()),
-                  );
-                  if (result == true) {
-                    // Product was added successfully, refresh the list
-                    setState(() {});
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF01aae8),
-                  minimumSize: const Size(double.infinity, 40),
-                ),
-                child: const Text(
-                  'Add New Product',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            //   child: ElevatedButton(
+            //     onPressed: () async {
+            //       final result = await Navigator.push(
+            //         context,
+            //         MaterialPageRoute(builder: (context) => const AddProductPage()),
+            //       );
+            //       if (result == true) {
+            //         // Product was added successfully, refresh the list
+            //         setState(() {});
+            //       }
+            //     },
+            //     style: ElevatedButton.styleFrom(
+            //       backgroundColor: const Color(0xFF01aae8),
+            //       minimumSize: const Size(double.infinity, 40),
+            //     ),
+            //     child: const Text(
+            //       'Add New Product',
+            //       style: TextStyle(color: Colors.white),
+            //     ),
+            //   ),
+            // ),
 
           // Search and Filter Row
           Padding(

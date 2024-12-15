@@ -1,17 +1,21 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import '../models/review_model.dart';
 import '../models/product_model.dart';
 import '../widgets/review_card.dart';
 import '../services/cart_service.dart';
+import '../services/wishlist_service.dart';
+import '../services/review_service.dart';
 import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:flutter_rating_stars/flutter_rating_stars.dart';
 
 Future<List<Review>> fetchReviews(String productId) async {
   try {
     final response = await http.get(
-        Uri.parse('http://localhost:8000/catalogue/review-json/$productId'));
+        Uri.parse('http://127.0.0.1:8000/catalogue/review-json/$productId'));
 
     if (response.statusCode == 200) {
       return reviewFromJson(response.body);
@@ -35,13 +39,29 @@ class ProductDetailPage extends StatefulWidget {
 class _ProductDetailPageState extends State<ProductDetailPage> {
   late CartService cartService;
   late Future<List<Review>> reviewsFuture;
+  late ReviewService reviewService;
+
+  late WishlistService wishlistService;
+  bool isInWishlist = false;
+
+  double ratingValue = 0.0;
+  String comment = '';
+  bool hasReviewed = false;
 
   @override
   void initState() {
     super.initState();
     final request = context.read<CookieRequest>();
+    debugPrint("CookieRequest initialized: $request");
+    reviewService = ReviewService(request);
     cartService = CartService(request);
     reviewsFuture = fetchReviews(widget.product.id.toString());
+    _checkIfReviewed();
+
+    wishlistService = WishlistService(request);
+    if (request.loggedIn) {
+      _fetchWishlistStatus();
+    }
   }
 
   void _addToCart() async {
@@ -58,8 +78,43 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     }
   }
 
+  void _fetchWishlistStatus() async {
+    final status =
+        await wishlistService.fetchIsInWishlist(widget.product.id.toString());
+    setState(() {
+      isInWishlist = status;
+    });
+  }
+
+  Future<void> _toggleWishlist() async {
+    final newStatus =
+        await wishlistService.toggleWishlist(widget.product.id.toString());
+    setState(() {
+      isInWishlist = newStatus;
+    });
+
+    if (newStatus) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Produk ditambahkan ke Wishlist!')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Produk dihapus dari Wishlist.')),
+      );
+    }
+  }
+
+  Future<void> _checkIfReviewed() async {
+    final status =
+        await reviewService.hasReviewed(widget.product.id.toString());
+    setState(() {
+      hasReviewed = status;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.product.name),
@@ -71,7 +126,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Product details and buttons go here...
               // Product Details Card
               Card(
                 elevation: 4,
@@ -149,11 +203,19 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                             ),
                           ),
                           ElevatedButton.icon(
-                            onPressed: () {},
-                            icon: const Icon(Icons.favorite_border),
-                            label: const Text('Tambah ke Wishlist'),
+                            onPressed: _toggleWishlist,
+                            icon: Icon(isInWishlist
+                                ? Icons.favorite
+                                : Icons.favorite_border),
+                            label: Text(
+                              isInWishlist
+                                  ? 'Hapus dari Wishlist'
+                                  : 'Tambah ke Wishlist',
+                            ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF01aae8),
+                              backgroundColor: isInWishlist
+                                  ? const Color(0xFFf87171)
+                                  : const Color(0xFF01aae8),
                               foregroundColor: Colors.white,
                             ),
                           ),
@@ -165,57 +227,131 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               ),
               const SizedBox(height: 24),
               // Write Review Section
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Tulis Ulasan',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: List.generate(5, (index) {
-                          return Icon(
-                            Icons.star_border,
-                            color: Colors.yellow[700],
-                            size: 30,
-                          );
-                        }),
-                      ),
-                      const SizedBox(height: 12),
-                      TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Apa pendapat Anda tentang produk ini?',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+              if (!hasReviewed) ...[
+                Center(
+                  child: Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize
+                            .min, // Ensures the Card doesn't take full height
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Tulis Ulasan',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 12),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              RatingStars(
+                                value: ratingValue,
+                                onValueChanged: (v) {
+                                  setState(() {
+                                    ratingValue = v;
+                                  });
+                                },
+                                starCount: 5,
+                                starSize: 20,
+                                valueLabelColor: const Color(0xff9b9b9b),
+                                valueLabelTextStyle: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w400,
+                                    fontStyle: FontStyle.normal,
+                                    fontSize: 12.0),
+                                valueLabelRadius: 10,
+                                maxValue: 5,
+                                starSpacing: 2,
+                                maxValueVisibility: true,
+                                valueLabelVisibility: true,
+                                animationDuration:
+                                    const Duration(milliseconds: 1000),
+                                valueLabelPadding: const EdgeInsets.symmetric(
+                                    vertical: 1, horizontal: 8),
+                                valueLabelMargin:
+                                    const EdgeInsets.only(right: 8),
+                                starOffColor: const Color(0xffe7e8ea),
+                                starColor: Colors.yellow,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Apa pendapat Anda tentang produk ini?',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            onChanged: (String? value) {
+                              setState(() {
+                                comment = value!;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 12),
+                          Center(
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                final response = await request.postJson(
+                                  "http://127.0.0.1:8000/catalogue/create-review/",
+                                  jsonEncode(<String, String>{
+                                    'product_id': widget.product.id,
+                                    'rating': ratingValue.toString(),
+                                    'comment': comment,
+                                  }),
+                                );
+                                if (context.mounted) {
+                                  if (response['status'] == 'success') {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content:
+                                            Text("Review berhasil dikirim!"),
+                                      ),
+                                    );
+                                    setState(() {
+                                      hasReviewed = true;
+                                    });
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                            "Terdapat kesalahan, silakan coba lagi."),
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF01aae8),
+                              ),
+                              child: const Text(
+                                'Kirim',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 12),
-                      ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF01aae8),
-                        ),
-                        child: const Text(
-                          'Kirim',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ],
+                    ),
+                  ),
+                )
+              ] else ...[
+                const Center(
+                  child: Text(
+                    'Anda telah memberikan ulasan untuk produk ini.',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-              ),
+              ],
               const SizedBox(height: 24),
               // Reviews Section with Filter Button
               Row(

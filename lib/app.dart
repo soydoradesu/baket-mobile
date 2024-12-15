@@ -1,3 +1,4 @@
+import 'package:baket_mobile/features/user/pages/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:baket_mobile/features/articles/pages/articlemain.dart';
@@ -69,7 +70,13 @@ class App extends StatelessWidget {
                   ),
                   ElevatedButton(
                     child: const Text('Profile'),
-                    onPressed: () {},
+                    onPressed: () {
+                        Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ProfileApp()),
+                      );
+                    },
                   ),
                 ],
               ),
