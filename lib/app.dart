@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:baket_mobile/features/articles/pages/articlemain.dart';
 import 'package:baket_mobile/features/product/pages/product_page.dart';
+import 'package:baket_mobile/features/product/pages/cart_page.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -25,7 +26,7 @@ class App extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
-                    child: const Text('Beranda'),
+                    child: const Text('Katalog'),
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -36,10 +37,6 @@ class App extends StatelessWidget {
                   ),
                   const Padding(
                     padding: EdgeInsets.all(8.0),
-                  ),
-                  ElevatedButton(
-                    child: const Text('Katalog'),
-                    onPressed: () {},
                   ),
                   ElevatedButton(
                     child: const Text('Forum'),
@@ -55,6 +52,16 @@ class App extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                             builder: (context) => const ArticleMain()),
+                      );
+                    },
+                  ),
+                  ElevatedButton(
+                    child: const Text('Beranda'),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const CartPage()),
                       );
                     },
                   ),
