@@ -9,48 +9,63 @@ class CartService {
   CartService(this.request);
 
   // Fetch cart items
-  Future<List<CartItem>> fetchCartItems() async {
-    final response = await request.get('http://localhost:8000/catalogue/cart-api/');
-    if (response == null) return [];
+  Future<CartData> fetchCartItems() async {
+    final response =
+        await request.get('http://127.0.0.1:8000/catalogue/cart-api/');
+    if (response == null) return CartData(cartItems: [], total: 0.0);
 
-    // The response is expected to be HTML rendered by Django.
-    // For a mobile app, ideally provide a JSON endpoint.
-    // If you only have HTML, you need a separate JSON endpoint or parse HTML.
-    // Let's assume you have a JSON endpoint or plan to create one:
-    //
-    // For now, let's assume you add a `json/cart/` endpoint returning JSON:
-    // { "items": [ { "id": ..., "product": {...}, "quantity":..., "total_price":... }, ...], "total":... }
-    
-    if (!response.containsKey('items')) return [];
-    
-    List<dynamic> itemsJson = response['items'];
-    return itemsJson.map((json) => CartItem.fromJson(json)).toList();
+    if (!response.containsKey('cart_items')) return CartData(cartItems: [], total: 0.0);
+
+    List<dynamic> itemsJson = response['cart_items'];
+    double total = response['total']?.toDouble() ?? 0.0;
+
+    List<CartItem> cartItems = itemsJson.map((json) => CartItem.fromJson(json)).toList();
+    return CartData(cartItems: cartItems, total: total);
   }
 
   // Add a product to cart
   Future<bool> addToCart(String productId) async {
-    // Using the existing endpoint which returns JSON { "cart_count": ... }
-    final url = 'http://localhost:8000/catalogue/cart/add/$productId/';
-
+    final url = 'http://127.0.0.1:8000/catalogue/cart/add/$productId/';
     final result = await request.get(url);
     if (result == null) return false;
-    // result should contain cart_count or similar
     return true;
   }
 
   // Remove from cart
   Future<bool> removeFromCart(int cartItemId) async {
-    final url = 'http://localhost:8000/catalogue/cart/remove/$cartItemId/';
-    final result = await request.get(url);
-    return result != null;
+    final url = 'http://127.0.0.1:8000/catalogue/cart/remove/$cartItemId/';
+    final result = await request.post(url, {});
+    if (result == null) return false;
+    if (result['status'] == 'success') return true;
+    return false;
   }
 
   // Checkout
-  Future<bool> checkout() async {
-    final url = 'http://localhost:8000/catalogue/checkout/';
-    // On successful checkout, Django creates an order and returns a redirect or HTML.
-    // For a mobile app, consider adding a JSON response. For now, we just check success.
-    final result = await request.post(url, {});
-    return result != null && result['status'] == 'success';
+  Future<Map<String, dynamic>?> checkout() async {
+    final url = 'http://127.0.0.1:8000/catalogue/checkout-api/';
+    final response = await request.post(url, {});
+    if (response == null) return null;
+    if (response['status'] == 'success') {
+      return {
+        'order_id': response['order_id'],
+        'total': response['total']?.toDouble() ?? 0.0,
+      };
+    }
+    return null;
   }
+
+  // Fetch cart count
+  Future<int> fetchCartCount() async {
+    final response =
+        await request.get('http://127.0.0.1:8000/catalogue/cart-count/');
+    if (response == null || !response.containsKey('cart_count')) return 0;
+    return response['cart_count'];
+  }
+}
+
+class CartData {
+  final List<CartItem> cartItems;
+  final double total;
+
+  CartData({required this.cartItems, required this.total});
 }

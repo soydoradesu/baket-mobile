@@ -1,6 +1,7 @@
 // lib/features/user/pages/profile_page.dart
 import 'package:baket_mobile/features/user/widgets/custom_super_tooltip.dart';
 import 'package:baket_mobile/features/wishlist/pages/wishlist_page.dart';
+import 'package:baket_mobile/features/product/pages/cart_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +16,7 @@ import '../models/user_profile.dart';
 import '../services/profile_service.dart';
 import '../dialogs/edit_dialogs.dart';
 import '../widgets/biodata_item.dart';
+import '../../product/services/cart_service.dart';
 
 import 'package:baket_mobile/features/auth/pages/login.dart'; // Adjust if needed
 
@@ -28,14 +30,16 @@ class ProfileApp extends StatefulWidget {
 class _ProfileAppState extends State<ProfileApp> {
   late Future<UserProfile> futureProfile;
   late ProfileService profileService;
+  late CartService cartService;
+  late int cartCount;
 
   // Tooltip controllers
   final _biodataTooltipController = SuperTooltipController();
   final _kontakTooltipController = SuperTooltipController();
   static const String biodataTooltipContent =
-  'This section displays your personal information such as username, date of birth, and gender. Tap on any field to edit and keep your details accurate.';
-  static const String kontakTooltipContent = 
-  'This section contains your contact details like email and phone number. Keeping them updated ensures smooth communication and account recovery.';
+      'This section displays your personal information such as username, date of birth, and gender. Tap on any field to edit and keep your details accurate.';
+  static const String kontakTooltipContent =
+      'This section contains your contact details like email and phone number. Keeping them updated ensures smooth communication and account recovery.';
 
   static const String baseUrl = Endpoints.baseUrl;
   static const String fetchProfileUrl = '$baseUrl/user/json/';
@@ -45,7 +49,9 @@ class _ProfileAppState extends State<ProfileApp> {
     super.initState();
     final request = context.read<CookieRequest>();
     profileService = ProfileService(request);
+    cartService = CartService(request);
     futureProfile = fetchUserProfile(request);
+    _fetchCartCount(); // Fetch cart count on initialization
   }
 
   Future<UserProfile> fetchUserProfile(CookieRequest request) async {
@@ -60,7 +66,14 @@ class _ProfileAppState extends State<ProfileApp> {
     });
   }
 
-    /// Picks an image from the gallery or camera and uploads it.
+  void _fetchCartCount() async {
+    final count = await cartService.fetchCartCount();
+    setState(() {
+      cartCount = count;
+    });
+  }
+
+  /// Picks an image from the gallery or camera and uploads it.
   Future<void> _pickAndUploadImage(BuildContext context) async {
     final picker = ImagePicker();
     showModalBottomSheet(
@@ -73,7 +86,8 @@ class _ProfileAppState extends State<ProfileApp> {
               title: const Text('Gallery'),
               onTap: () async {
                 Navigator.of(context).pop();
-                final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+                final pickedFile =
+                    await picker.pickImage(source: ImageSource.gallery);
                 if (pickedFile != null) {
                   await _uploadImage(File(pickedFile.path));
                 }
@@ -84,7 +98,8 @@ class _ProfileAppState extends State<ProfileApp> {
               title: const Text('Camera'),
               onTap: () async {
                 Navigator.of(context).pop();
-                final pickedFile = await picker.pickImage(source: ImageSource.camera);
+                final pickedFile =
+                    await picker.pickImage(source: ImageSource.camera);
                 if (pickedFile != null) {
                   await _uploadImage(File(pickedFile.path));
                 }
@@ -166,7 +181,8 @@ class _ProfileAppState extends State<ProfileApp> {
     );
   }
 
-  Widget buildProfilePage(BuildContext context, UserProfile user, CookieRequest request) {
+  Widget buildProfilePage(
+      BuildContext context, UserProfile user, CookieRequest request) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -181,12 +197,10 @@ class _ProfileAppState extends State<ProfileApp> {
                   clipBehavior: Clip.none,
                   children: [
                     CircleAvatar(
-                      backgroundImage: NetworkImage(
-                        '$baseUrl${user.profilePicture}'
-                      ),
+                      backgroundImage:
+                          NetworkImage('$baseUrl${user.profilePicture}'),
                       radius: 50,
                     ),
-                    
                     Positioned(
                       bottom: -12,
                       child: InkWell(
@@ -198,7 +212,8 @@ class _ProfileAppState extends State<ProfileApp> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.grey[300]!, width: 1),
+                            border:
+                                Border.all(color: Colors.grey[300]!, width: 1),
                           ),
                           padding: const EdgeInsets.all(4),
                           child: const Icon(
@@ -211,7 +226,6 @@ class _ProfileAppState extends State<ProfileApp> {
                     ),
                   ],
                 ),
-
                 const SizedBox(width: 16),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -230,12 +244,14 @@ class _ProfileAppState extends State<ProfileApp> {
                           );
                           if (updated) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Name updated successfully!')),
+                              const SnackBar(
+                                  content: Text('Name updated successfully!')),
                             );
                             await refreshProfile();
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Failed to update name.')),
+                              const SnackBar(
+                                  content: Text('Failed to update name.')),
                             );
                           }
                         }
@@ -261,7 +277,8 @@ class _ProfileAppState extends State<ProfileApp> {
                     ),
                     const SizedBox(height: 4),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 4),
                       decoration: BoxDecoration(
                         color: const Color(0xFF01AAE8),
                         borderRadius: BorderRadius.circular(12),
@@ -291,15 +308,18 @@ class _ProfileAppState extends State<ProfileApp> {
                 // Handle Tap Here
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => const WishlistPage()),
+                  MaterialPageRoute(builder: (context) => const WishlistPage()),
                 );
               },
-              splashColor: Colors.blue.withOpacity(0.3),   // Customize splash color
-              highlightColor: Colors.blue.withOpacity(0.1), // Customize highlight color
-              borderRadius: BorderRadius.circular(12), // To match container radius
+              splashColor:
+                  Colors.blue.withOpacity(0.3), // Customize splash color
+              highlightColor:
+                  Colors.blue.withOpacity(0.1), // Customize highlight color
+              borderRadius:
+                  BorderRadius.circular(12), // To match container radius
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                 decoration: BoxDecoration(
                   color: Colors.grey[100],
                   borderRadius: BorderRadius.circular(12),
@@ -333,6 +353,58 @@ class _ProfileAppState extends State<ProfileApp> {
               ),
             ),
 
+            const SizedBox(height: 16),
+
+// Cart Section
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const CartPage()),
+                ).then((_) {
+                  // Refresh cart count when returning
+                  _fetchCartCount();
+                });
+              },
+              splashColor: Colors.blue.withOpacity(0.3),
+              highlightColor: Colors.blue.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.shopping_cart, color: Colors.black),
+                        const SizedBox(width: 16),
+                        Text(
+                          '$cartCount barang dalam keranjang',
+                          style: GoogleFonts.raleway(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      'Lihat Barang',
+                      style: GoogleFonts.raleway(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF01AAE8),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
             const SizedBox(height: 32),
 
             Divider(thickness: 1, height: 32, color: Colors.grey[300]),
@@ -347,9 +419,7 @@ class _ProfileAppState extends State<ProfileApp> {
                     color: const Color(0xFF01AAE8),
                   ),
                 ),
-
                 const SizedBox(width: 10),
-
                 CustomSuperTooltip(
                   tooltipText: biodataTooltipContent,
                   controller: _biodataTooltipController,
@@ -368,17 +438,21 @@ class _ProfileAppState extends State<ProfileApp> {
               label: 'Tanggal Lahir',
               value: DateFormat('dd-MM-yyyy').format(user.birthDate),
               onTap: () async {
-                final selectedDate = await showDatePickerDialog(context, user.birthDate);
+                final selectedDate =
+                    await showDatePickerDialog(context, user.birthDate);
                 if (selectedDate != null && selectedDate != user.birthDate) {
-                  final updated = await profileService.updateBirthDate(selectedDate);
+                  final updated =
+                      await profileService.updateBirthDate(selectedDate);
                   if (updated) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Birth date updated successfully!')),
+                      const SnackBar(
+                          content: Text('Birth date updated successfully!')),
                     );
                     await refreshProfile();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Failed to update birth date.')),
+                      const SnackBar(
+                          content: Text('Failed to update birth date.')),
                     );
                   }
                 }
@@ -389,11 +463,14 @@ class _ProfileAppState extends State<ProfileApp> {
               value: user.gender,
               onTap: () async {
                 final newGender = await showGenderDialog(context, user.gender);
-                if (newGender != null && newGender.isNotEmpty && newGender != user.gender) {
+                if (newGender != null &&
+                    newGender.isNotEmpty &&
+                    newGender != user.gender) {
                   final updated = await profileService.updateGender(newGender);
                   if (updated) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Gender updated successfully!')),
+                      const SnackBar(
+                          content: Text('Gender updated successfully!')),
                     );
                     await refreshProfile();
                   } else {
@@ -417,9 +494,7 @@ class _ProfileAppState extends State<ProfileApp> {
                     color: const Color(0xFF01AAE8),
                   ),
                 ),
-                
                 const SizedBox(width: 10),
-
                 CustomSuperTooltip(
                   tooltipText: kontakTooltipContent,
                   controller: _kontakTooltipController,
@@ -441,7 +516,8 @@ class _ProfileAppState extends State<ProfileApp> {
                   final updated = await profileService.updateEmail(newEmail);
                   if (updated) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Email updated successfully!')),
+                      const SnackBar(
+                          content: Text('Email updated successfully!')),
                     );
                     await refreshProfile();
                   } else {
@@ -466,7 +542,8 @@ class _ProfileAppState extends State<ProfileApp> {
                   final updated = await profileService.updatePhone(newPhone);
                   if (updated) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Phone number updated successfully!')),
+                      const SnackBar(
+                          content: Text('Phone number updated successfully!')),
                     );
                     await refreshProfile();
                   } else {
@@ -488,11 +565,13 @@ class _ProfileAppState extends State<ProfileApp> {
                     if (response["status"]) {
                       String uname = response["username"];
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("$message Sampai jumpa, $uname.")),
+                        SnackBar(
+                            content: Text("$message Sampai jumpa, $uname.")),
                       );
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => const LoginPage()),
+                        MaterialPageRoute(
+                            builder: (context) => const LoginPage()),
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -502,11 +581,14 @@ class _ProfileAppState extends State<ProfileApp> {
                   }
                 },
                 icon: const Icon(Icons.logout, color: Colors.black54),
-                label: const Text('Keluar Akun', style: TextStyle(color: Colors.black)),
+                label: const Text('Keluar Akun',
+                    style: TextStyle(color: Colors.black)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.grey[100],
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
                 ),
               ),
             ),
