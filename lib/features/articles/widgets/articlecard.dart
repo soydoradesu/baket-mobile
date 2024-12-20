@@ -2,21 +2,25 @@ import 'package:baket_mobile/features/articles/pages/articlepage.dart';
 import 'package:flutter/material.dart';
 
 class ArticleCard extends StatelessWidget {
+  final String id;
   final String title;
   final String postedBy;
   final int likeCount;
   final int commentCount;
   final bool hasLike;
   final bool hasComment;
+  final bool mainPage;
 
   const ArticleCard({
     super.key,
+    required this.id,
     required this.title,
     required this.postedBy,
     required this.likeCount,
     required this.commentCount,
     this.hasLike = false,
     this.hasComment = false,
+    this.mainPage = true,
   });
 
   @override
@@ -24,10 +28,18 @@ class ArticleCard extends StatelessWidget {
     return Center(
       child: GestureDetector(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const ArticlePage()),
-          );
+          if (mainPage) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ArticlePage(id: id)),
+            );
+          }
+          else {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ArticlePage(id: id)),
+            );
+          }
         },
         child: Container(
           padding: const EdgeInsets.all(16.0),

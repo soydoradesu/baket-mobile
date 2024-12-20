@@ -9,7 +9,7 @@ class Endpoints {
   static const String baseUrlWeb = Config.baseUrlWeb;
 
   // Change this to switch between local and production
-  static const String baseUrl = baseUrlHp;
+  static const String baseUrl = baseUrlWeb;
 
   static const String login = '$baseUrl/auth/login/';
   static const String register = '$baseUrl/auth/register/';

@@ -35,7 +35,7 @@ class _ArticleMain extends State<ArticleMain> {
       if (d != null) {
         article = ArticleM.fromJson(d);
         lst.add(ArticleCard(
-          key: Key(article.id), 
+          id: article.id,
           title: article.title, 
           postedBy: article.postedBy, 
           likeCount: article.likeCount, 
