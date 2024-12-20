@@ -1,12 +1,12 @@
-import 'package:baket_mobile/app.dart';
 import 'package:baket_mobile/core/constants/_constants.dart';
 import 'package:baket_mobile/features/auth/pages/register.dart';
-import 'package:baket_mobile/navbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:get/get.dart';
+
+import '../../../navbar.dart';
 
 void main() {
   runApp(const LoginApp());
@@ -55,8 +55,8 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Logo
-                Image.network(
-                  'assets/images/BaKet_Logo.png', // Replace with your logo URL
+                Image.asset(
+                  'assets/images/BaKet_Logo.png',
                   height: 100,
                 ),
                 const SizedBox(height: 24),
@@ -66,7 +66,7 @@ class _LoginPageState extends State<LoginPage> {
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF01AAE8), // Set color to #01AAE8
+                    color: Color(0xFF01AAE8),
                   ),
                 ),
                 const SizedBox(height: 32),

@@ -1,5 +1,6 @@
 import 'package:baket_mobile/app.dart';
 import 'package:baket_mobile/features/articles/pages/articlemain.dart';
+import 'package:baket_mobile/features/forum/presentation/pages/_pages.dart';
 import 'package:baket_mobile/features/product/pages/product_page.dart';
 import 'package:baket_mobile/features/user/pages/profile.dart';
 import 'package:flutter/material.dart';
@@ -74,7 +75,7 @@ class NavigationController extends GetxController {
 
   final screens = [
     const ProductPage(),
-    const App(),
+    const ForumPage(),
     const ArticleMain(),
     const ProfileApp(),
   ];

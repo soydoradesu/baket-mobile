@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:baket_mobile/core/constants/_constants.dart';
 import 'package:baket_mobile/features/auth/pages/login.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -263,7 +264,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     String gender = _selectedGender ?? '';
 
                     final response = await request.postJson(
-                      "http://127.0.0.1:8000/auth/register/",
+                      Endpoints.register,
                       jsonEncode({
                         "username": username,
                         "password1": password1,
