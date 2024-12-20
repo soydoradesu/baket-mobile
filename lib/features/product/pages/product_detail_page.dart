@@ -31,7 +31,7 @@ Future<List<Review>> fetchReviews(String productId) async {
 
 class ProductDetailPage extends StatefulWidget {
   final Product product;
-  const ProductDetailPage({required this.product});
+  const ProductDetailPage({required this.product, Key? key}) : super(key: key);
 
   @override
   State<ProductDetailPage> createState() => _ProductDetailPageState();
@@ -321,6 +321,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                     setState(() {
                                       hasReviewed = true;
                                     });
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ProductDetailPage(
+                                            product: widget.product),
+                                      ),
+                                    );
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
@@ -380,9 +387,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   } else if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
                   } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                    return ReviewCard(reviews: snapshot.data!);
+                    return ReviewCard(
+                      reviews: snapshot.data!,
+                      product: widget.product,
+                    );
                   } else {
-                    return const Text('No reviews yet.');
+                    return const Text('Belum ada ulasan untuk produk ini.');
                   }
                 },
               ),
