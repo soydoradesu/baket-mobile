@@ -1,10 +1,10 @@
-import 'product_model.dart';
+import 'package:baket_mobile/features/product/models/product_model.dart';
 
 class CartItem {
-  final int id;
+  final String id;
   final Product product;
   final int quantity;
-  final int totalPrice;
+  final double totalPrice;
 
   CartItem({
     required this.id,
@@ -18,7 +18,7 @@ class CartItem {
       id: json['id'],
       product: Product.fromJson(json['product']),
       quantity: json['quantity'],
-      totalPrice: json['total_price'],
+      totalPrice: json['total_price']?.toDouble() ?? 0.0,
     );
   }
 }
