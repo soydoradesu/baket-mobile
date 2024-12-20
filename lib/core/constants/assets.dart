@@ -11,6 +11,7 @@ class _SvgAssets {
   String get logoPanjang => '$_basePath/LogoPanjang.svg';
   String get noPost => '$_basePath/NoPost.svg';
   String get error => '$_basePath/Error.svg';
+  String get reply => '$_basePath/Reply.svg';
 }
 
 class _ImageAssets {

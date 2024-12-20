@@ -3,3 +3,4 @@ import 'package:baket_mobile/core/themes/_themes.dart';
 import 'package:flutter/material.dart';
 
 part 'search_field.dart';
+part 'custom_snackbar.dart';

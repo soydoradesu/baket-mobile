@@ -14,13 +14,18 @@ class PostView extends StatefulWidget {
   State<PostView> createState() => _PostViewState();
 }
 
-class _PostViewState extends State<PostView> {
+class _PostViewState extends State<PostView>
+    with AutomaticKeepAliveClientMixin {
   late final PostUseCase postUseCase;
+  late final LikeUseCase likeUseCase;
   late final String urls;
   late CookieRequest request;
 
   final PagingController<int, PostModel> _pagingController =
       PagingController<int, PostModel>(firstPageKey: 1);
+
+  int currentPage = 1;
+  bool isLoadingLike = false;
 
   @override
   void initState() {
@@ -28,10 +33,20 @@ class _PostViewState extends State<PostView> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _pagingController.dispose();
+    super.dispose();
+  }
+
+  @override
+  bool get wantKeepAlive => true;
+
   void _init() {
     if (!mounted) return;
 
     postUseCase = PostUseCase(PostRepositoryImpl(PostRemoteDataSourceImpl()));
+    likeUseCase = LikeUseCase(PostRepositoryImpl(PostRemoteDataSourceImpl()));
     urls = widget.isYourPost ? Endpoints.myPosts : Endpoints.allPosts;
     _pagingController.addPageRequestListener((pageKey) {
       _fetchPosts(pageKey, request);
@@ -63,6 +78,7 @@ class _PostViewState extends State<PostView> {
             _pagingController.appendLastPage(data['results']);
           } else {
             final nextPageKey = pageKey + 1;
+            currentPage = nextPageKey;
             _pagingController.appendPage(data['results'], nextPageKey);
           }
         },
@@ -74,6 +90,7 @@ class _PostViewState extends State<PostView> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     request = context.watch<CookieRequest>();
 
     return Column(
@@ -126,7 +143,7 @@ class _PostViewState extends State<PostView> {
                   ),
                 ),
                 noMoreItemsIndicatorBuilder: (context) {
-                  if (_pagingController.nextPageKey == null) {
+                  if (currentPage == 1) {
                     return const SizedBox();
                   }
 
@@ -171,7 +188,65 @@ class _PostViewState extends State<PostView> {
                   ),
                 ),
                 itemBuilder: (context, item, index) {
-                  return PostCard(post: item);
+                  return PostCard(
+                    onTap: () => print('Post'),
+                    onTapLike: () async {
+                      if (isLoadingLike) return;
+
+                      setState(() {
+                        isLoadingLike = true;
+                      });
+
+                      // Hit API
+                      final response = await likeUseCase.execute(
+                        LikeParams(
+                          request: request,
+                          url: item.isLiked
+                              ? Endpoints.unlikePost
+                              : Endpoints.likePost,
+                          uuid: item.id,
+                        ),
+                      );
+
+                      response.fold(
+                        (left) {
+                          if (left is GeneralFailure) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              CustomSnackbar.snackbar(
+                                message: '${left.message!.split(':')[0]} ...',
+                                icon: Icons.error,
+                                color: BaseColors.error,
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              CustomSnackbar.snackbar(
+                                message: 'Terjadi kesalahan lain!',
+                                icon: Icons.error,
+                                color: BaseColors.error,
+                              ),
+                            );
+                          }
+                        },
+                        (right) {
+                          // Update UI
+                          setState(() {
+                            item.isLiked = !item.isLiked;
+                            if (item.isLiked) {
+                              item.likeCount++;
+                            } else {
+                              item.likeCount--;
+                            }
+                          });
+
+                          setState(() {
+                            isLoadingLike = false;
+                          });
+                        },
+                      );
+                    },
+                    post: item,
+                  );
                 },
               ),
             ),
