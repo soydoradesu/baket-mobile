@@ -12,6 +12,8 @@ Future<Either<Failure, T>> apiCall<T>(Future<T> t) async {
   } catch (e) {
     // Nanti kalo gw udah ngerti cara ngambil datanya maybe ini bisa
     // diubah jadi lebih spesifik per errornya
+    Logger().f(e.runtimeType);
+    Logger().f(e.toString());
     Logger().e(e);
     return Left(GeneralFailure(message: e.toString()));
   }

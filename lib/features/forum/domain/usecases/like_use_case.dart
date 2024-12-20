@@ -1,15 +1,15 @@
 part of '_usecases.dart';
 
-class PostUseCase
-    implements UseCase<Parsed<Map<String, dynamic>>, PostParams> {
+class LikeUseCase
+    implements UseCase<Parsed<Map<String, dynamic>>, LikeParams> {
   final PostRepository postRepository;
 
-  PostUseCase(this.postRepository);
+  LikeUseCase(this.postRepository);
 
   @override
   Future<Either<Failure, Parsed<Map<String, dynamic>>>> execute(
-      [PostParams? args]) async {
+      [LikeParams? args]) async {
     if (args == null) return Left(ArgumentFailure());
-    return postRepository.getPosts(args);
+    return postRepository.like(args);
   }
 }
