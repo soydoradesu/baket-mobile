@@ -1,3 +1,4 @@
+import 'package:baket_mobile/core/constants/_constants.dart';
 import 'package:flutter/material.dart';
 import '../models/product_model.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -49,7 +50,7 @@ class _ProductPageState extends State<ProductPage> {
       //   ...queryParams.map((key, value) => MapEntry(key, value is List ? value.join(',') : value)),
       // });
 
-      Uri uri = Uri.parse('http://127.0.0.1:8000/catalogue/prod-json/').replace(queryParameters: {
+      Uri uri = Uri.parse('${Endpoints.baseUrl}/catalogue/prod-json/').replace(queryParameters: {
         ...queryParams.map((key, value) => MapEntry(key, value is List ? value.join(',') : value)),
       });
 
@@ -353,6 +354,7 @@ class _ProductPageState extends State<ProductPage> {
                     crossAxisCount: 2,
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
+                    childAspectRatio: 0.75,
                   ),
                   padding: const EdgeInsets.all(10),
                   itemCount: products.length,
