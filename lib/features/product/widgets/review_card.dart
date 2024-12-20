@@ -1,11 +1,37 @@
 import 'package:flutter/material.dart';
 import '../models/product_model.dart';
 import '../models/review_model.dart';
+import '../pages/product_detail_page.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+Future<void> deleteReview(int reviewId) async {
+  final url = Uri.parse('http://127.0.0.1:8000/catalogue/delete/$reviewId/');
+
+  try {
+    final response = await http.post(url);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['success']) {
+        print(data['message']); // Successfully deleted
+      } else {
+        print('Error: ${data['message']}');
+      }
+    } else {
+      print('HTTP Error: ${response.statusCode}');
+    }
+  } catch (error) {
+    print('Error deleting review: $error');
+  }
+}
 
 class ReviewCard extends StatelessWidget {
   final List<Review> reviews;
+  final Product product;
 
-  const ReviewCard({required this.reviews, Key? key}) : super(key: key);
+  const ReviewCard({required this.reviews, required this.product, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -57,10 +83,51 @@ class ReviewCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Icon(
+                    if (review.isUserReview)
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        iconSize: 20,
+                        onPressed: () async {
+                          bool confirmed = await showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text("Konfirmasi"),
+                                content: const Text(
+                                    "Apakah Anda yakin ingin menghapus ulasan ini?"),
+                                actions: [
+                                  TextButton(
+                                    child: const Text("Batal"),
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(false),
+                                  ),
+                                  TextButton(
+                                    child: const Text("Hapus"),
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(true),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+
+                          if (confirmed ?? false) {
+                            await deleteReview(review.id);
+                          }
+
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ProductDetailPage(product: product),
+                            ),
+                          );
+                        },
+                      ),
+                    const Icon(
                       Icons.thumb_up,
                       size: 16,
-                      color: Colors.blue[400],
+                      color: Colors.black,
                     ),
                     const SizedBox(width: 4),
                     Text(
