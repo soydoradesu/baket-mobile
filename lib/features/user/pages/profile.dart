@@ -37,9 +37,9 @@ class _ProfileAppState extends State<ProfileApp> {
   final _biodataTooltipController = SuperTooltipController();
   final _kontakTooltipController = SuperTooltipController();
   static const String biodataTooltipContent =
-      'This section displays your personal information such as username, date of birth, and gender. Tap on any field to edit and keep your details accurate.';
+    'Bagian ini menampilkan informasi pribadi Anda seperti nama pengguna, tanggal lahir, dan jenis kelamin. Ketuk pada setiap bidang untuk mengedit dan pastikan detail Anda selalu akurat.';
   static const String kontakTooltipContent =
-      'This section contains your contact details like email and phone number. Keeping them updated ensures smooth communication and account recovery.';
+    'Bagian ini memuat detail kontak Anda seperti email dan nomor telepon. Memperbarui informasi ini secara rutin memastikan komunikasi yang lancar dan kemudahan dalam pemulihan akun.';
 
   static const String baseUrl = Endpoints.baseUrl;
   static const String fetchProfileUrl = '$baseUrl/user/json/';
@@ -171,7 +171,9 @@ class _ProfileAppState extends State<ProfileApp> {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (snapshot.hasData) {
               final user = snapshot.data!;
-              return buildProfilePage(context, user, request);
+              return SafeArea(
+                child: buildProfilePage(context, user, request)
+              );
             } else {
               return const Center(child: Text('No data available'));
             }
@@ -432,6 +434,10 @@ class _ProfileAppState extends State<ProfileApp> {
               value: user.username,
               onTap: () {
                 // Update username if you have that endpoint
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text('Untuk sementara, username belum bisa diupdate')),
+                );
               },
             ),
             BiodataItem(

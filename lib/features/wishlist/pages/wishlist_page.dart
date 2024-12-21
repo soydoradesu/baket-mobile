@@ -1,7 +1,8 @@
 import 'package:baket_mobile/core/constants/_constants.dart';
+import 'package:baket_mobile/features/wishlist/models/wishlist_model.dart';
 import 'package:flutter/material.dart';
 // import '../models/product_model.dart';
-import 'package:baket_mobile/features/product/models/product_model.dart';
+// import 'package:baket_mobile/features/product/models/product_model.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import '../widgets/wishlist_card.dart';
@@ -31,7 +32,7 @@ class _WishlistPageState extends State<WishlistPage> {
   ];
 
   // Fetch products with query parameters
-  Future<List<Product>> fetchProducts(CookieRequest request) async {
+  Future<List<WishlistProduct>> fetchProducts(CookieRequest request) async {
     try {
       print('Fetching products with query: $searchQuery, categories: $selectedCategories, sort: $sortOption');
       
@@ -71,10 +72,10 @@ class _WishlistPageState extends State<WishlistPage> {
       print('JsonList length: ${jsonList.length}');
       print('First item in jsonList: ${jsonList.isNotEmpty ? jsonList.first : "empty"}');
 
-      List<Product> products = [];
+      List<WishlistProduct> products = [];
       for (var item in jsonList) {
         print('Processing item: $item');
-        products.add(Product.fromJson(item));
+        products.add(WishlistProduct.fromJson(item));
       }
       
       print('Processed products length: ${products.length}');
@@ -97,32 +98,6 @@ class _WishlistPageState extends State<WishlistPage> {
       ),
       body: Column(
         children: [
-          // Add Product Button (for admin)
-          // if (request.loggedIn && request.jsonData?['is_staff'] == true)
-            // Padding(
-            //   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            //   child: ElevatedButton(
-            //     onPressed: () async {
-            //       final result = await Navigator.push(
-            //         context,
-            //         MaterialPageRoute(builder: (context) => const AddProductPage()),
-            //       );
-            //       if (result == true) {
-            //         // Product was added successfully, refresh the list
-            //         setState(() {});
-            //       }
-            //     },
-            //     style: ElevatedButton.styleFrom(
-            //       backgroundColor: const Color(0xFF01aae8),
-            //       minimumSize: const Size(double.infinity, 40),
-            //     ),
-            //     child: const Text(
-            //       'Add New Product',
-            //       style: TextStyle(color: Colors.white),
-            //     ),
-            //   ),
-            // ),
-
           // Search and Filter Row
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -306,7 +281,7 @@ class _WishlistPageState extends State<WishlistPage> {
 
           // Product Grid
           Expanded(
-            child: FutureBuilder<List<Product>>(
+            child: FutureBuilder<List<WishlistProduct>>(
               future: fetchProducts(request),
               builder: (context, snapshot) {
                 // Add debug prints for snapshot state
@@ -347,18 +322,29 @@ class _WishlistPageState extends State<WishlistPage> {
                 }
 
                 final products = snapshot.data!;
-                return GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                  ),
+                return Padding(
                   padding: const EdgeInsets.all(10),
-                  itemCount: products.length,
-                  itemBuilder: (context, index) {
-                    return ProductCard(product: products[index]);
-                  },
+
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: products.map((product) {
+                        return
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width / 2 - 15,
+                            child: WishListCard(
+                              product: product,
+                              onRemove: () {  
+                                setState(() {});
+                              },),
+                        );
+                      }).toList(),
+                    ),
+                  ),
                 );
+
               },
             ),
           ),
