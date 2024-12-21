@@ -1,7 +1,7 @@
 import 'package:baket_mobile/core/constants/_constants.dart';
+import 'package:baket_mobile/features/articles/widgets/articlecard.dart';
 import 'package:flutter/material.dart';
-import 'package:baket_mobile/features/articles/pages/articlepage.dart';
-import 'package:baket_mobile/features/articles/models/article.dart';
+import 'package:baket_mobile/features/articles/models/articlem.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
@@ -14,23 +14,34 @@ class ArticleMain extends StatefulWidget {
 
 class _ArticleMain extends State<ArticleMain> {  
   static const String baseUrl = Endpoints.baseUrl;
+  final TextEditingController _searchController = TextEditingController();
+  String _search = '';
+  String _sort = '';
+  static const sortOptions = {
+    'most_like': 'Like Terbanyak',
+    'oldest': 'Terlama',
+    'most_recent': 'Terbaru',
+  };
 
-  Future<List<ArticleCard>> fetchArticles(CookieRequest request) async {
-    final response = await request.get('$baseUrl/articles/json/flutter/main/');
+  Future<List<ArticleCard>> fetchArticles(CookieRequest request, {String? search, String? sort}) async {
+    final url = '$baseUrl/articles/json/flutter/main/?search=${search ?? ''}&sort=${sort ?? ''}';
+    final response = await request.get(url);
 
     var data = response;
-    Article? article;
+    ArticleM? article;
 
     List<ArticleCard> lst = [];
     for (var d in data) {
       if (d != null) {
-        article = Article.fromJson(d);
+        article = ArticleM.fromJson(d);
         lst.add(ArticleCard(
-          key: Key(article.pk), 
-          title: article.fields.title, 
-          postedBy: article.fields.postedBy, 
-          likeCount: article.fields.likeCount, 
-          commentCount: article.fields.commentCount
+          id: article.id,
+          title: article.title, 
+          postedBy: article.postedBy, 
+          likeCount: article.likeCount, 
+          commentCount: article.commentCount,
+          hasLike: article.isLike,
+          hasComment: article.isComment,
         ));
       }
     }
@@ -47,7 +58,7 @@ class _ArticleMain extends State<ArticleMain> {
         title: const Text('Article'),
       ),
       body: FutureBuilder(
-        future: fetchArticles(request),
+        future: fetchArticles(request, search: _search, sort: _sort),
         builder: (context, AsyncSnapshot snapshot) {
           if (snapshot.data == null) {
             return const Center(child: CircularProgressIndicator());
@@ -57,7 +68,7 @@ class _ArticleMain extends State<ArticleMain> {
               return const Column(
                 children: [
                   Text(
-                    "Tidak ada produk",
+                    "Tidak ada artikel",
                     style: TextStyle(fontSize: 20, color: Color(0xff59A5D8)),
                   ),
                   SizedBox(height: 8),
@@ -74,19 +85,29 @@ class _ArticleMain extends State<ArticleMain> {
                     const SizedBox(height: 16.0),
                     Row(
                       children: [
-                        const Expanded(
+                        Expanded(
                           child: TextField(
-                            decoration: InputDecoration(
+                            controller: _searchController,
+                            decoration: const InputDecoration(
                               labelText: 'Search Articles',
                               enabledBorder: OutlineInputBorder(),
                               border: OutlineInputBorder(),
                             ),
+                            // onChanged: (value) {
+                            //   setState(() {
+                            //     _search = value;
+                            //   });
+                            // },
                           ),
                         ),
                         SizedBox(
                           height: 48,
                           child: TextButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              setState(() {
+                                _search = _searchController.text;
+                              });
+                            },
                             style: TextButton.styleFrom(
                               shape: const RoundedRectangleBorder(
                                 borderRadius: BorderRadius.horizontal(
@@ -105,21 +126,23 @@ class _ArticleMain extends State<ArticleMain> {
                           height: 48,
                           child: PopupMenuButton<String>(
                             onSelected: (value) {
-                              // BELUM HEHE
+                              setState(() {
+                                _sort = value;
+                              });
                             },
                             itemBuilder: (context) {
-                              return <String>['Like Terbanyak', 'Terlama', 'Terbaru'].map((e) {
+                              return sortOptions.entries.map((e) {
                                 return PopupMenuItem<String>(
-                                  value: e,
-                                  child: Text(e),
+                                  value: e.key,
+                                  child: Text(e.value),
                                 );
                               }).toList();
                             },
-                            child: const Row(
+                            child: Row(
                               children: [
-                                Text('Sort by'),
-                                SizedBox(width: 8),
-                                Icon(Icons.arrow_drop_down),
+                                Text(sortOptions[_sort] ?? 'Sort by'),
+                                const SizedBox(width: 8),
+                                const Icon(Icons.arrow_drop_down),
                               ],
                             ),
                           ),
@@ -145,75 +168,6 @@ class _ArticleMain extends State<ArticleMain> {
             }
           }
         }
-      ),
-    );
-  }
-}
-
-
-class ArticleCard extends StatelessWidget {
-  final String title;
-  final String postedBy;
-  final int likeCount;
-  final int commentCount;
-
-  const ArticleCard({
-    super.key,
-    required this.title,
-    required this.postedBy,
-    required this.likeCount,
-    required this.commentCount,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const ArticlePage()),
-          );
-        },
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.black),
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 4.0),
-              Text("Posted by: $postedBy"),
-              const SizedBox(height: 8.0),
-              Row(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(right: 4.0),
-                    child: Icon(Icons.thumb_up),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 16.0),
-                    child: Text(likeCount.toString()),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(right: 4.0),
-                    child: Icon(Icons.comment),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 0.0),
-                    child: Text(commentCount.toString()),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

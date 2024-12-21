@@ -1,3 +1,4 @@
+import 'package:baket_mobile/features/forum/presentation/pages/_pages.dart';
 import 'package:baket_mobile/features/user/pages/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -40,7 +41,13 @@ class App extends StatelessWidget {
                   ),
                   ElevatedButton(
                     child: const Text('Forum'),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ForumPage()),
+                      );
+                    },
                   ),
                   const Padding(
                     padding: EdgeInsets.all(8.0),

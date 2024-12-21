@@ -13,6 +13,7 @@ String reviewToJson(List<Review> data) =>
 class Review {
   int id;
   int user;
+  bool isUserReview;
   String username;
   String product;
   int rating;
@@ -23,6 +24,7 @@ class Review {
   Review({
     required this.id,
     required this.user,
+    required this.isUserReview,
     required this.username,
     required this.product,
     required this.rating,
@@ -34,6 +36,7 @@ class Review {
   factory Review.fromJson(Map<String, dynamic> json) => Review(
         id: json["id"],
         user: json["user"],
+        isUserReview: json['is_user_review'],
         username: json["username"],
         product: json["product"],
         rating: json["rating"],

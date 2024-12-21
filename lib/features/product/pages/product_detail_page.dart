@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:baket_mobile/core/constants/_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../models/review_model.dart';
@@ -15,7 +16,7 @@ import 'package:flutter_rating_stars/flutter_rating_stars.dart';
 Future<List<Review>> fetchReviews(String productId) async {
   try {
     final response = await http.get(
-        Uri.parse('http://127.0.0.1:8000/catalogue/review-json/$productId'));
+        Uri.parse('${Endpoints.baseUrl}/catalogue/review-json/$productId'));
 
     if (response.statusCode == 200) {
       return reviewFromJson(response.body);
@@ -30,7 +31,7 @@ Future<List<Review>> fetchReviews(String productId) async {
 
 class ProductDetailPage extends StatefulWidget {
   final Product product;
-  const ProductDetailPage({required this.product});
+  const ProductDetailPage({required this.product, Key? key}) : super(key: key);
 
   @override
   State<ProductDetailPage> createState() => _ProductDetailPageState();
@@ -190,8 +191,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       ),
                       const SizedBox(height: 16),
                       // Buttons
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Wrap(
+                        spacing: 8,
                         children: [
                           ElevatedButton.icon(
                             onPressed: _addToCart,
@@ -302,7 +303,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                             child: ElevatedButton(
                               onPressed: () async {
                                 final response = await request.postJson(
-                                  "http://127.0.0.1:8000/catalogue/create-review/",
+                                  "${Endpoints.baseUrl}/catalogue/create-review/",
                                   jsonEncode(<String, String>{
                                     'product_id': widget.product.id,
                                     'rating': ratingValue.toString(),
@@ -320,6 +321,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                     setState(() {
                                       hasReviewed = true;
                                     });
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ProductDetailPage(
+                                            product: widget.product),
+                                      ),
+                                    );
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
@@ -379,9 +387,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   } else if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
                   } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                    return ReviewCard(reviews: snapshot.data!);
+                    return ReviewCard(
+                      reviews: snapshot.data!,
+                      product: widget.product,
+                    );
                   } else {
-                    return const Text('No reviews yet.');
+                    return const Text('Belum ada ulasan untuk produk ini.');
                   }
                 },
               ),
