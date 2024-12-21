@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:baket_mobile/core/constants/_constants.dart';
 import 'package:baket_mobile/features/articles/models/articlep.dart';
 import 'package:baket_mobile/features/articles/widgets/articlecard.dart';
@@ -141,56 +143,7 @@ class ArticlePage extends StatelessWidget {
                     ),
                     const SizedBox(height: 20.0),
                     // Comments Section
-                    const Text(
-                      'Comments',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF555555),
-                      ),
-                    ),
-                    const SizedBox(height: 8.0),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextField(
-                          maxLines: 3,
-                          decoration: InputDecoration(
-                            hintText: 'Write a comment...',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8.0),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF01AAE8),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                            ),
-                            child: const Text(
-                              'Post',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16.0),
-                    const Text(
-                      'No comments yet',
-                      style: TextStyle(
-                        fontSize: 14.0,
-                        color: Colors.grey,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    CommentWidget(commentId: "b7e5ac4d-78b4-4e66-b643-0891e91e03b0", username: "Undefined", comment: "Tes", timestamp: "20-12-2024", likes: 0),
+                    CommentSection(articleId: id),
                     const SizedBox(height: 32.0),
                     // Other Articles Section
                     Container(
@@ -231,25 +184,6 @@ class ArticlePage extends StatelessWidget {
                               );
                             },
                           ),
-                          // _buildOtherArticle(
-                          //   title: 'Teknologi QR Code Permudah Pendaftaran Subsidi BBM di Kepri',
-                          //   author: 'Rengga Yuliandra',
-                          //   date: 'Sept. 8, 2024, 6:05 P.M.',
-                          //   context: context,
-                          // ),
-                          // _buildOtherArticle(
-                          //   title:
-                          //       'Diskominfo Batam Ajak Generasi Muda Cakap Digital Lewat Pemanfaatan Teknologi Informasi',
-                          //   author: 'MEDIACENTER',
-                          //   date: 'Oct. 27, 2024, midnight',
-                          //   context: context,
-                          // ),
-                          // _buildOtherArticle(
-                          //   title: 'Telkom Desain Ulang Pusat Data di Batam supaya Bisa Pakai AI',
-                          //   author: 'Amelia Yesidora',
-                          //   date: 'Oct. 30, 2024, 4:11 P.M.',
-                          //   context: context,
-                          // ),
                         ],
                       ),
                     ),
@@ -262,57 +196,129 @@ class ArticlePage extends StatelessWidget {
       }
     );
   }
+}
 
-  Widget _buildOtherArticle({
-    required String title,
-    required String author,
-    required String date,
-    required BuildContext context,
-  }) {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      margin: const EdgeInsets.only(bottom: 16.0),
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 6.0,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+class CommentSection extends StatefulWidget {
+  final String articleId;
+
+  const CommentSection({
+    super.key,
+    required this.articleId,
+  });
+
+  @override
+  State<CommentSection> createState() => _CommentSectionState();
+}
+
+class _CommentSectionState extends State<CommentSection> {
+  final _formKey = GlobalKey<FormState>();
+  static const String baseUrl = Endpoints.baseUrl;
+  final TextEditingController _postController = TextEditingController();
+  String _post = '';
+
+  Future<void> postComment(CookieRequest request) async {
+    if (_formKey.currentState!.validate()) {
+      final url = "$baseUrl/article/add_comment/${widget.articleId}/";
+      final response = await request.postJson(
+        url,
+        jsonEncode(<String, String>{
+          "content": _post,
+        }),
+      );
+      if (context.mounted) {
+        if (response.ok) {
+          ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(
+            content: Text("Komentar berhasil dipost"),
+          ));
+        }
+        else {
+          ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(
+            content: Text("Terjadi kesalahan"),
+          ));
+        }
+      }
+      _post = '';
+      _postController.clear();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+      return Column(
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 16.0,
+          const Text(
+            'Comments',
+            style: TextStyle(
+              fontSize: 18.0,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF333333),
+              color: Color(0xFF555555),
             ),
           ),
           const SizedBox(height: 8.0),
-          Text(
-            'Posted by: $author',
-            style: const TextStyle(
-              fontSize: 14.0,
-              color: Colors.grey,
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Form(
+                key: _formKey,
+                child: TextFormField(
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: 'Write a comment...',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
+                  ),
+                  onChanged: (String? value) {
+                    setState(() {
+                      _post = value!;
+                    });
+                  },
+                  validator: (String? value) {
+                    if (value == null || value.isEmpty) {
+                      return "Write a comment...";
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              const SizedBox(height: 8.0),
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF01AAE8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                  child: const Text(
+                    'Post',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
           ),
-          Text(
-            'Created at: $date',
-            style: const TextStyle(
+          const SizedBox(height: 16.0),
+          const Text(
+            'No comments yet',
+            style: TextStyle(
               fontSize: 14.0,
               color: Colors.grey,
             ),
+            textAlign: TextAlign.center,
+          ),
+          CommentWidget(
+            commentId: "b7e5ac4d-78b4-4e66-b643-0891e91e03b0",
+            username: "Undefined",
+            comment: "Tes",
+            timestamp: "20-12-2024",
+            likes: 0,
           ),
         ],
-      ),
-    );
+      );
   }
 }
 
