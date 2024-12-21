@@ -65,14 +65,16 @@ class _ArticleMain extends State<ArticleMain> {
           }
           else {
             if (!snapshot.hasData) {
-              return const Column(
-                children: [
-                  Text(
-                    "Tidak ada artikel",
-                    style: TextStyle(fontSize: 20, color: Color(0xff59A5D8)),
-                  ),
-                  SizedBox(height: 8),
-                ],
+              return const Center(
+                child: Column(
+                  children: [
+                    Text(
+                      "Tidak ada artikel",
+                      style: TextStyle(fontSize: 20, color: Color(0xff59A5D8)),
+                    ),
+                    SizedBox(height: 8),
+                  ],
+                ),
               );
             }
             else {
