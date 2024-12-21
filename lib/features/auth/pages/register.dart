@@ -22,6 +22,13 @@ class RegisterApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: GoogleFonts.raleway().fontFamily,
         primarySwatch: Colors.blue,
+        primaryColor: const Color(0xFF01AAE8),
+        colorScheme: const ColorScheme.light(
+          primary: Color(0xFF01AAE8),
+          onPrimary: Colors.white,
+          secondary: Color(0xFF01AAE8),
+        ),
+        buttonTheme: const ButtonThemeData(textTheme: ButtonTextTheme.primary),
       ),
       home: const RegisterPage(),
     );
@@ -51,7 +58,7 @@ class _RegisterPageState extends State<RegisterPage> {
       initialDate: DateTime.now(),
       firstDate: DateTime(1920, 1, 1),
       lastDate: DateTime.now(),
-      helpText: 'Select your birth date', // Optional customization
+      helpText: 'Pilih tanggal lahir kamu', // Optional customization
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
@@ -80,7 +87,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 24),
                 // Title
                 const Text(
-                  'Create Your Account',
+                  'Buat Akun Kamu!',
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -95,8 +102,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       child: TextFormField(
                         controller: _firstNameController,
                         decoration: InputDecoration(
-                          labelText: 'First Name',
-                          hintText: 'Enter your first name',
+                          labelText: 'Nama Depan',
+                          hintText: 'Masukin nama depanmu',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
                             borderSide: const BorderSide(color: Color(0xFF01AAE8)),
@@ -113,8 +120,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       child: TextFormField(
                         controller: _lastNameController,
                         decoration: InputDecoration(
-                          labelText: 'Last Name',
-                          hintText: 'Enter your last name',
+                          labelText: 'Nama Belakang',
+                          hintText: 'Masukin nama belakangmu',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
                             borderSide: const BorderSide(color: Color(0xFF01AAE8)),
@@ -134,7 +141,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   controller: _usernameController,
                   decoration: InputDecoration(
                     labelText: 'Username',
-                    hintText: 'Enter your username',
+                    hintText: 'Masukin usernamemu',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                       borderSide: const BorderSide(color: Color(0xFF01AAE8)),
@@ -152,7 +159,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   controller: _passwordController,
                   decoration: InputDecoration(
                     labelText: 'Password',
-                    hintText: 'Enter your password',
+                    hintText: 'Masukin passwordmu',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                       borderSide: const BorderSide(color: Color(0xFF01AAE8)),
@@ -169,8 +176,8 @@ class _RegisterPageState extends State<RegisterPage> {
                   obscureText: true,
                   controller: _confirmPasswordController,
                   decoration: InputDecoration(
-                    labelText: 'Password Confirmation',
-                    hintText: 'Enter your password again',
+                    labelText: 'Konfirmasi Password',
+                    hintText: 'Masukkan ulang passwordmu',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                       borderSide: const BorderSide(color: Color(0xFF01AAE8)),
@@ -191,7 +198,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         onTap: _pickDate,
                         child: InputDecorator(
                           decoration: InputDecoration(
-                            labelText: 'Birth Date',
+                            labelText: 'Tanggal Lahir',
                             hintText: 'dd/mm/yyyy',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
@@ -216,7 +223,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     Expanded(
                       child: DropdownButtonFormField<String>(
                         decoration: InputDecoration(
-                          labelText: 'Gender',
+                          labelText: 'Jenis Kelamin',
                           hintText: 'Pria/Wanita',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
@@ -316,7 +323,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Already have an account?"),
+                    const Text("Sudah punya akun?"),
                     TextButton(
                       onPressed: () {
                         Navigator.pushReplacement(

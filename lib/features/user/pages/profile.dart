@@ -311,7 +311,10 @@ class _ProfileAppState extends State<ProfileApp> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const WishlistPage()),
-                );
+                ).then((_) async {
+                  _fetchCartCount();
+                  await refreshProfile(); // or setState(...) if you need to refetch
+                });
               },
               splashColor:
                   Colors.blue.withOpacity(0.3), // Customize splash color
@@ -386,7 +389,7 @@ class _ProfileAppState extends State<ProfileApp> {
                         const Icon(Icons.shopping_cart, color: Colors.black),
                         const SizedBox(width: 16),
                         Text(
-                          '$cartCount barang dalam keranjang',
+                          '$cartCount dalam keranjang',
                           style: GoogleFonts.raleway(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
@@ -395,7 +398,7 @@ class _ProfileAppState extends State<ProfileApp> {
                       ],
                     ),
                     Text(
-                      'Lihat Barang',
+                      'checkout yuk!',
                       style: GoogleFonts.raleway(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
@@ -452,13 +455,13 @@ class _ProfileAppState extends State<ProfileApp> {
                   if (updated) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                          content: Text('Birth date updated successfully!')),
+                          content: Text('Tanggal Lahir berhasil diupdate!')),
                     );
                     await refreshProfile();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                          content: Text('Failed to update birth date.')),
+                          content: Text('Tanggal Lahir gagal diupdate :(')),
                     );
                   }
                 }
@@ -476,12 +479,12 @@ class _ProfileAppState extends State<ProfileApp> {
                   if (updated) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                          content: Text('Gender updated successfully!')),
+                          content: Text('Jenis Kelamin berhasil diupdate!')),
                     );
                     await refreshProfile();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Failed to update gender.')),
+                      const SnackBar(content: Text('Jenis Kelamin gagal diupdate :(')),
                     );
                   }
                 }
@@ -523,12 +526,12 @@ class _ProfileAppState extends State<ProfileApp> {
                   if (updated) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                          content: Text('Email updated successfully!')),
+                          content: Text('Email berhasil diupdate!')),
                     );
                     await refreshProfile();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Failed to update email.')),
+                      const SnackBar(content: Text('Email gagal diupdate :(')),
                     );
                   }
                 }
@@ -540,7 +543,7 @@ class _ProfileAppState extends State<ProfileApp> {
               onTap: () async {
                 final newPhone = await showSingleFieldDialog(
                   context,
-                  title: 'Phone Number',
+                  title: 'Nomor HP',
                   initialValue: user.phoneNumber ?? '',
                   inputType: TextInputType.phone,
                 );
@@ -549,12 +552,12 @@ class _ProfileAppState extends State<ProfileApp> {
                   if (updated) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                          content: Text('Phone number updated successfully!')),
+                          content: Text('Nomor HP berhasil diupdate!')),
                     );
                     await refreshProfile();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Failed to update phone.')),
+                      const SnackBar(content: Text('Nomor HP gagal diupdate :(')),
                     );
                   }
                 }

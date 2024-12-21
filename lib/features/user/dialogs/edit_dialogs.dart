@@ -12,7 +12,12 @@ Future<String?> showSingleFieldDialog(
   return showDialog<String>(
     context: context,
     builder: (_) => AlertDialog(
-      title: Text('Update $title'),
+      title: Text('Update $title',
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+        ),
+      ),
       content: TextField(
         controller: controller,
         keyboardType: inputType,
@@ -40,7 +45,12 @@ Future<Map<String, String>?> showNameDialog(
   return showDialog<Map<String, String>>(
     context: context,
     builder: (_) => AlertDialog(
-      title: const Text('Update Name'),
+      title: const Text('Update Nama',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+        ),
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -68,16 +78,22 @@ Future<DateTime?> showDatePickerDialog(BuildContext context, DateTime currentDat
     initialDate: currentDate,
     firstDate: DateTime(1900),
     lastDate: DateTime.now(),
+    helpText: 'Pilih Tanggal Lahir',
   );
 }
 
 Future<String?> showGenderDialog(BuildContext context, String currentGender) async {
-  final genders = ['Male', 'Female', 'Other'];
+  final genders = ['Pria', 'Wanita'];
   return showDialog<String>(
     context: context,
     builder: (BuildContext context) {
       return SimpleDialog(
-        title: const Text('Select Gender'),
+        title: const Text('Pilih Jenis Kelamin',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
         children: genders.map((gender) {
           return SimpleDialogOption(
             onPressed: () => Navigator.pop(context, gender),
