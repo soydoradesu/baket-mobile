@@ -16,4 +16,10 @@ class PostRepositoryImpl extends PostRepository {
       like(LikeParams args) async {
     return apiCall(postRemoteDataSource.like(args));
   }
+
+  @override
+  Future<Either<Failure, Parsed<Map<String, dynamic>>>> addPost(
+      AddPostParams args) async {
+    return apiCall(postRemoteDataSource.addPost(args));
+  }
 }

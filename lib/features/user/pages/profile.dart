@@ -2,6 +2,7 @@
 import 'package:baket_mobile/features/user/widgets/custom_super_tooltip.dart';
 import 'package:baket_mobile/features/wishlist/pages/wishlist_page.dart';
 import 'package:baket_mobile/features/product/pages/cart_page.dart';
+import 'package:baket_mobile/services/logger_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';

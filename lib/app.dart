@@ -1,95 +1,31 @@
-import 'package:baket_mobile/features/forum/presentation/pages/_pages.dart';
-import 'package:baket_mobile/features/user/pages/profile.dart';
+import 'package:baket_mobile/features/auth/pages/login.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:baket_mobile/features/articles/pages/articlemain.dart';
-import 'package:baket_mobile/features/product/pages/product_page.dart';
-import 'package:baket_mobile/features/product/pages/cart_page.dart';
+import 'package:get/get.dart';
+import 'package:provider/provider.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
-
-    return MaterialApp(
-      title: "BaKet",
-      debugShowCheckedModeBanner: false,
-      home: Builder(
-        builder: (context) {
-          return Scaffold(
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    child: const Text('Katalog'),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const ProductPage()),
-                      );
-                    },
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                  ),
-                  ElevatedButton(
-                    child: const Text('Forum'),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const ForumPage()),
-                      );
-                    },
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                  ),
-                  ElevatedButton(
-                    child: const Text('Artikel'),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const ArticleMain()),
-                      );
-                    },
-                  ),
-                  ElevatedButton(
-                    child: const Text('Beranda'),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const CartPage()),
-                      );
-                    },
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                  ),
-                  ElevatedButton(
-                    child: const Text('Profile'),
-                    onPressed: () {
-                        Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const ProfileApp()),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
+    return Provider(
+      create: (_) {
+        CookieRequest request = CookieRequest();
+        return request;
+      },
+      child: GetMaterialApp(
+        title: 'Flutter App',
+        theme: ThemeData(
+          textTheme: GoogleFonts.ralewayTextTheme(
+            Theme.of(context).textTheme,
+          ),
+          primarySwatch: Colors.blue,
+          colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue),
+          // ... other theme settings
+        ),
+        home: const LoginApp(),
       ),
     );
   }

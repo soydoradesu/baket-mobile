@@ -1,4 +1,4 @@
-// import 'dart:ffi';
+import 'dart:io';
 
 import 'package:baket_mobile/core/bases/widgets/_widgets.dart';
 import 'package:baket_mobile/core/constants/_constants.dart';
@@ -12,11 +12,11 @@ import 'package:baket_mobile/features/forum/domain/models/post_model.dart';
 import 'package:baket_mobile/features/forum/domain/params/like_params.dart';
 import 'package:baket_mobile/features/forum/domain/params/post_params.dart';
 import 'package:baket_mobile/features/forum/domain/usecases/_usecases.dart';
+import 'package:baket_mobile/features/forum/presentation/pages/_pages.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-// import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -24,3 +24,4 @@ import 'package:provider/provider.dart';
 
 part 'post_view.dart';
 part 'post_card.dart';
+part 'image_box.dart';

@@ -1,5 +1,6 @@
 import 'package:baket_mobile/core/constants/_constants.dart';
 import 'package:baket_mobile/features/auth/pages/register.dart';
+import 'package:baket_mobile/services/pref_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -132,50 +133,58 @@ class _LoginPageState extends State<LoginPage> {
                     // TODO: Login logic
                     String username = _usernameController.text;
                     String password = _passwordController.text;
-                    final response = await request
-                        .login(loginUrl, {
+                    final response = await request.login(loginUrl, {
                       'username': username,
                       'password': password,
                     });
 
                     if (request.loggedIn) {
-                        String message = response['message'];
-                        String uname = response['username'];
-                        if (context.mounted) {
-                          Get.offAll(() => const NavigationMenu()); // Replaces the current route stack entirely.
-                          // Navigator.pushReplacement(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //       builder: (context) => const App()),
-                          // );
-                          ScaffoldMessenger.of(context)
-                            ..hideCurrentSnackBar()
-                            ..showSnackBar(
-                              SnackBar(
-                                  content:
-                                      Text("$message Selamat datang, $uname.")),
-                            );
-                        }
-                      } else {
-                        if (context.mounted) {
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text('Login Gagal'),
-                              content: Text(response['message']),
-                              actions: [
-                                TextButton(
-                                  child: const Text('OK'),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                              ],
-                            ),
+                      PrefService.saveString(
+                        "profile_picture",
+                        response['profile_picture'],
+                      );
+                      PrefService.saveString(
+                        "username",
+                        response['username'],
+                      );
+                      String message = response['message'];
+                      String uname = response['username'];
+                      if (context.mounted) {
+                        Get.offAll(() =>
+                            const NavigationMenu()); // Replaces the current route stack entirely.
+                        // Navigator.pushReplacement(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //       builder: (context) => const App()),
+                        // );
+                        ScaffoldMessenger.of(context)
+                          ..hideCurrentSnackBar()
+                          ..showSnackBar(
+                            SnackBar(
+                                content:
+                                    Text("$message Selamat datang, $uname.")),
                           );
-                        }
                       }
-                    },
+                    } else {
+                      if (context.mounted) {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Login Gagal'),
+                            content: Text(response['message']),
+                            actions: [
+                              TextButton(
+                                child: const Text('OK'),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                    }
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF01AAE8),
                     minimumSize: const Size(double.infinity, 50),
@@ -188,7 +197,7 @@ class _LoginPageState extends State<LoginPage> {
                     style: TextStyle(
                       fontSize: 16,
                       color: Color(0xFFFFFFFF),
-                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -201,7 +210,8 @@ class _LoginPageState extends State<LoginPage> {
                       onPressed: () {
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => const RegisterApp()),
+                          MaterialPageRoute(
+                              builder: (context) => const RegisterApp()),
                         );
                       },
                       child: const Text(

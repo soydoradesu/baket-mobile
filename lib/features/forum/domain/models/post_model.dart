@@ -6,6 +6,7 @@ class PostModel {
   String id;
   UserModel user;
   String content;
+  String? image;
   int likeCount;
   int replyCount;
   DateTime createdAt;
@@ -21,12 +22,14 @@ class PostModel {
     required this.createdAt,
     required this.updatedAt,
     required this.isLiked,
+    this.image,
   });
 
   factory PostModel.fromJson(Map<String, dynamic> json) => PostModel(
         id: json["id"],
         user: UserModel.fromJson(json["user"]),
         content: json["content"],
+        image: json["image"],
         likeCount: json["like_count"],
         replyCount: json["reply_count"],
         createdAt: DateTime.parse(json["created_at"]),
@@ -38,6 +41,7 @@ class PostModel {
         "id": id,
         "user": user.toJson(),
         "content": content,
+        "image": image,
         "like_count": likeCount,
         "reply_count": replyCount,
         "created_at": createdAt.toIso8601String(),
@@ -49,6 +53,7 @@ class PostModel {
     String? id,
     UserModel? user,
     String? content,
+    String? image,
     int? likeCount,
     int? replyCount,
     DateTime? createdAt,
@@ -59,6 +64,7 @@ class PostModel {
       id: id ?? this.id,
       user: user ?? this.user,
       content: content ?? this.content,
+      image: image ?? this.image,
       likeCount: likeCount ?? this.likeCount,
       replyCount: replyCount ?? this.replyCount,
       createdAt: createdAt ?? this.createdAt,
@@ -71,6 +77,7 @@ class PostModel {
   String toString() {
     return 'PostModel $id \n ${user.toString()} \n'
         'content: $content \n'
+        'image: ${image ?? "none"} \n'
         'likeCount: $likeCount \n'
         'replyCount: $replyCount \n'
         'createdAt: $createdAt \n'

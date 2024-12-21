@@ -27,6 +27,7 @@ dependencies:
   infinite_scroll_pagination: ^4.1.0
   flutter_rating_stars: ^1.1.0
   cached_network_image: ^3.4.1
+  shared_preferences: ^2.3.4
 
 dev_dependencies:
   build_runner: ^2.4.8
