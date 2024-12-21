@@ -1,5 +1,3 @@
-// lib/features/order/pages/order_confirmation_page.dart
-
 import 'package:baket_mobile/features/product/pages/product_page.dart';
 import 'package:flutter/material.dart';
 
@@ -16,10 +14,6 @@ class OrderConfirmationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text('Order Confirmation'),
-      //   backgroundColor: const Color(0xFF01aae8),
-      // ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),

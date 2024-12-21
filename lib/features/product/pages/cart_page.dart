@@ -1,5 +1,3 @@
-// lib/features/cart/pages/cart_page.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/cart_service.dart';
