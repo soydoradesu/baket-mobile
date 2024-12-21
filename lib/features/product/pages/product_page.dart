@@ -44,11 +44,6 @@ class _ProductPageState extends State<ProductPage> {
         queryParams['sort'] = sortOption;
       }
 
-      // Convert query parameters to URL
-      // Uri uri = Uri.parse('http://localhost:8000/catalogue/prod-json/').replace(queryParameters: {
-      //   ...queryParams.map((key, value) => MapEntry(key, value is List ? value.join(',') : value)),
-      // });
-
       Uri uri = Uri.parse('http://127.0.0.1:8000/catalogue/prod-json/').replace(queryParameters: {
         ...queryParams.map((key, value) => MapEntry(key, value is List ? value.join(',') : value)),
       });

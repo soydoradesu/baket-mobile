@@ -1,5 +1,3 @@
-// services/wishlist_service.dart
-
 // import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:baket_mobile/core/constants/_constants.dart';
