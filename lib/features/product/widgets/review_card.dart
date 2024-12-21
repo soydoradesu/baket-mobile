@@ -5,6 +5,24 @@ import '../pages/product_detail_page.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+Future<String?> fetchCsrfToken(Uri url) async {
+  try {
+    final response = await http.get(url, headers: {
+      'Accept': 'application/json',
+    });
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['csrf_token'] != null) {
+        return data['csrf_token'];
+      }
+    }
+  } catch (e) {
+    print('Error fetching CSRF token: $e');
+  }
+  return null;
+}
+
 Future<void> deleteReview(int reviewId) async {
   final url = Uri.parse('http://127.0.0.1:8000/catalogue/delete/$reviewId/');
 
@@ -14,7 +32,7 @@ Future<void> deleteReview(int reviewId) async {
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       if (data['success']) {
-        print(data['message']); // Successfully deleted
+        print(data['message']);
       } else {
         print('Error: ${data['message']}');
       }
@@ -26,7 +44,36 @@ Future<void> deleteReview(int reviewId) async {
   }
 }
 
-class ReviewCard extends StatelessWidget {
+Future<void> toggleLikeReview(
+    int reviewId, Function(int) onUpdate, String csrfToken) async {
+  final url = Uri.parse('http://127.0.0.1:8000/catalogue/like-review/');
+
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
+      },
+      body: json.encode({'review_id': reviewId}),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final data = json.decode(response.body);
+      if (data['status'] == 'success') {
+        onUpdate(data['like_count']);
+      } else {
+        print('Error: ${data['message']}');
+      }
+    } else {
+      print('HTTP Error: ${response.statusCode}');
+    }
+  } catch (error) {
+    print('Error liking review: $error');
+  }
+}
+
+class ReviewCard extends StatefulWidget {
   final List<Review> reviews;
   final Product product;
 
@@ -34,13 +81,25 @@ class ReviewCard extends StatelessWidget {
       : super(key: key);
 
   @override
+  _ReviewCardState createState() => _ReviewCardState();
+}
+
+class _ReviewCardState extends State<ReviewCard> {
+  // Function to update like count in state
+  void updateLikeCount(int index, int newLikeCount) {
+    setState(() {
+      widget.reviews[index].likeReviewCount = newLikeCount;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: reviews.length,
+      itemCount: widget.reviews.length,
       itemBuilder: (context, index) {
-        final review = reviews[index];
+        final review = widget.reviews[index];
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
           elevation: 4,
@@ -119,15 +178,31 @@ class ReviewCard extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  ProductDetailPage(product: product),
+                                  ProductDetailPage(product: widget.product),
                             ),
                           );
                         },
                       ),
-                    const Icon(
-                      Icons.thumb_up,
-                      size: 16,
+                    IconButton(
+                      icon: const Icon(Icons.thumb_up),
+                      iconSize: 16,
                       color: Colors.black,
+                      onPressed: () async {
+                        String? csrfToken = await fetchCsrfToken(
+                          Uri.parse(
+                              'http://127.0.0.1:8000/catalogue/api/csrf-token/'),
+                        );
+                        if (csrfToken != null) {
+                          await toggleLikeReview(
+                            review.id,
+                            (newLikeCount) =>
+                                updateLikeCount(index, newLikeCount),
+                            csrfToken,
+                          );
+                        } else {
+                          print("Failed to fetch CSRF token.");
+                        }
+                      },
                     ),
                     const SizedBox(width: 4),
                     Text(
