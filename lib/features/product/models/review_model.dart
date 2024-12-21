@@ -14,6 +14,7 @@ class Review {
   int id;
   int user;
   bool isUserReview;
+  bool isLiked;
   String username;
   String product;
   int rating;
@@ -25,6 +26,7 @@ class Review {
     required this.id,
     required this.user,
     required this.isUserReview,
+    required this.isLiked,
     required this.username,
     required this.product,
     required this.rating,
@@ -37,6 +39,7 @@ class Review {
         id: json["id"],
         user: json["user"],
         isUserReview: json['is_user_review'],
+        isLiked: json['isLiked'],
         username: json["username"],
         product: json["product"],
         rating: json["rating"],
@@ -49,6 +52,7 @@ class Review {
         "id": id,
         "user": user,
         "username": username,
+        "isLiked": isLiked,
         "rating": rating,
         "comment": comment,
         "created_at": createdAt.toIso8601String(),

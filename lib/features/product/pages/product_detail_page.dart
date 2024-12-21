@@ -13,22 +13,6 @@ import 'package:provider/provider.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:flutter_rating_stars/flutter_rating_stars.dart';
 
-Future<List<Review>> fetchReviews(String productId) async {
-  try {
-    final response = await http.get(
-        Uri.parse('${Endpoints.baseUrl}/catalogue/review-json/$productId'));
-
-    if (response.statusCode == 200) {
-      return reviewFromJson(response.body);
-    } else {
-      throw Exception('Failed to load reviews: ${response.statusCode}');
-    }
-  } catch (e) {
-    print('Error fetching reviews: $e');
-    rethrow;
-  }
-}
-
 class ProductDetailPage extends StatefulWidget {
   final Product product;
   const ProductDetailPage({required this.product, Key? key}) : super(key: key);
@@ -38,14 +22,19 @@ class ProductDetailPage extends StatefulWidget {
 }
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
+  int? selectedRatingFilter;
   late CartService cartService;
   late Future<List<Review>> reviewsFuture;
   late ReviewService reviewService;
+  late Future<Map<String, dynamic>> _ratingData;
+
+  List<Review> originalReviews = [];
+  List<Review> filteredReviews = [];
 
   late WishlistService wishlistService;
   bool isInWishlist = false;
 
-  double ratingValue = 0.0;
+  double ratingValue = 3.5;
   String comment = '';
   bool hasReviewed = false;
 
@@ -57,6 +46,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     reviewService = ReviewService(request);
     cartService = CartService(request);
     reviewsFuture = fetchReviews(widget.product.id.toString());
+    _ratingData = fetchAverageRating(widget.product.id);
     _checkIfReviewed();
 
     wishlistService = WishlistService(request);
@@ -111,6 +101,61 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     setState(() {
       hasReviewed = status;
     });
+  }
+
+  Future<List<Review>> fetchReviews(String productId) async {
+    try {
+      final response = await http.get(
+          Uri.parse('http://127.0.0.1:8000/catalogue/review-json/$productId'));
+
+      if (response.statusCode == 200) {
+        originalReviews = reviewFromJson(response.body);
+        filteredReviews = List.from(originalReviews);
+        setState(() {});
+        return originalReviews;
+      } else {
+        throw Exception('Failed to load reviews: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching reviews: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchAverageRating(String prodId) async {
+    final url = Uri.parse('http://127.0.0.1:8000/catalogue/calculate-ratings/');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'prod_id': prodId}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return {
+          'average_rating': data['average_rating'],
+          'review_count': data['review_count'],
+        };
+      } else {
+        print('Failed to fetch rating data: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching average rating: $e');
+    }
+    return {'average_rating': 0.0, 'review_count': 0};
+  }
+
+  List<Review> applyFilter() {
+    if (selectedRatingFilter != 0) {
+      filteredReviews = originalReviews
+          .where((review) => review.rating == selectedRatingFilter)
+          .toList();
+    } else {
+      filteredReviews = List.from(originalReviews); // Reset to all reviews
+    }
+    return filteredReviews;
   }
 
   @override
@@ -176,20 +221,132 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      // Category and Description
-                      const Text(
-                        'Kategori: ',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
-                        ),
+                      // Product average rating
+                      FutureBuilder<Map<String, dynamic>>(
+                        future: _ratingData,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          }
+
+                          if (snapshot.hasError) {
+                            return Center(
+                                child: Text('Error: ${snapshot.error}'));
+                          }
+
+                          if (!snapshot.hasData || snapshot.data == null) {
+                            return const Center(
+                                child: Text('No rating data available'));
+                          }
+
+                          final data = snapshot.data!;
+                          final averageRating = data['average_rating'];
+                          final reviewCount = data['review_count'];
+
+                          // Calculate the number of filled and empty stars
+                          int fullStars = averageRating.toInt();
+                          int emptyStars = 5 - fullStars;
+
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 4.0, vertical: 4.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Stars section
+                                Row(
+                                  children: List.generate(fullStars, (index) {
+                                        return Icon(
+                                          Icons.star,
+                                          color: Colors.yellow[700],
+                                          size: 20,
+                                        );
+                                      }) +
+                                      List.generate(emptyStars, (index) {
+                                        return Icon(
+                                          Icons.star_border,
+                                          color: Colors.yellow[700],
+                                          size: 20,
+                                        );
+                                      }),
+                                ),
+                                const SizedBox(width: 8),
+                                // Average rating and review count section
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${averageRating.toStringAsFixed(1)} | $reviewCount Ulasan',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                      // Category
+                      Row(
+                        children: [
+                          const Text(
+                            'Kategori:',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[500],
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              widget.product.category,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        'Deskripsi:',
-                        style: TextStyle(fontSize: 14),
+                      // Description
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Deskripsi:',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          // Expanded widget ensures the text fills the available space
+                          Expanded(
+                            child: Text(
+                              widget.product.specs,
+                              style: const TextStyle(
+                                  fontSize: 15, color: Colors.black87),
+                              softWrap: true,
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 16),
+
                       // Buttons
                       Wrap(
                         spacing: 8,
@@ -238,8 +395,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
-                        mainAxisSize: MainAxisSize
-                            .min, // Ensures the Card doesn't take full height
+                        mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
@@ -372,27 +528,96 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  IconButton(
-                    onPressed: () {},
+                  PopupMenuButton<int>(
+                    onSelected: (rating) {
+                      setState(() {
+                        selectedRatingFilter = rating;
+                        applyFilter();
+                      });
+                    },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 0,
+                        child: Text(
+                          'Semua',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 5,
+                        child: Text(
+                          '5 Bintang',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 4,
+                        child: Text(
+                          '4 Bintang',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 3,
+                        child: Text(
+                          '3 Bintang',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 2,
+                        child: Text(
+                          '2 Bintang',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 1,
+                        child: Text(
+                          '1 Bintang',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
                     icon: const Icon(Icons.filter_alt_outlined),
                     color: const Color(0xFF01aae8),
                   ),
                 ],
               ),
               FutureBuilder<List<Review>>(
-                future: reviewsFuture,
+                future: Future.value(filteredReviews),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                    return ReviewCard(
-                      reviews: snapshot.data!,
-                      product: widget.product,
+                    return Center(
+                      child: Text(
+                        'Error: ${snapshot.error}',
+                        style: const TextStyle(color: Colors.white),
+                      ),
                     );
+                  } else if (snapshot.hasData) {
+                    final reviewsToDisplay = snapshot.data!;
+                    if (reviewsToDisplay.isNotEmpty) {
+                      return ReviewCard(
+                        reviews: reviewsToDisplay,
+                        product: widget.product,
+                      );
+                    } else {
+                      return const Center(
+                        child: Text(
+                          'Tidak ada ulasan dengan filter ini.',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      );
+                    }
                   } else {
-                    return const Text('Belum ada ulasan untuk produk ini.');
+                    return const Center(
+                      child: Text(
+                        'Belum ada ulasan untuk produk ini.',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
                   }
                 },
               ),
