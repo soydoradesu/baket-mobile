@@ -8,17 +8,17 @@ class Assets {
 class _SvgAssets {
   final String _basePath = 'assets/svgs';
 
-  String get logo => '$_basePath/logo.svg';
-  String get textResize => '$_basePath/text_resize.svg';
-  String get caretDownFill => '$_basePath/caret_down_fill.svg';
-  String get caretUpFill => '$_basePath/caret_up_fill.svg';
-  String get chevronCompactDown => '$_basePath/chevron_compact_down.svg';
-  String get chevronCompactUp => '$_basePath/chevron_compact_up.svg';
+  String get logoPanjang => '$_basePath/LogoPanjang.svg';
+  String get noPost => '$_basePath/NoPost.svg';
+  String get error => '$_basePath/Error.svg';
+  String get reply => '$_basePath/Reply.svg';
 }
 
 class _ImageAssets {
   final String _basePath = 'assets/images';
 
-  String get logoHorizontal => '$_basePath/logo_horizontal.png';
-  String get furinaSad => '$_basePath/furina_sad.png';
+  String get logoBG => '$_basePath/BaKet_Logo_BG.png';
+  String get logoWhite => '$_basePath/BaKet_Logo_White.png';
+  String get logoBlue => '$_basePath/BaKet_Logo.png';
+  String get branding => '$_basePath/branding.png';
 }

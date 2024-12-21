@@ -56,6 +56,7 @@ class BaseColors {
   // Blue Colors
   static const Color blue1 = Color(0xFF1A73E8);
   static const Color blue2 = Color(0xFF0A4C96);
+  static const Color vividBlue = Color(0xFF01aae8);
 
   // Purple Hearth Colors
   static const Color purpleHearth200 = Color(0xFFC9CEFC);
