@@ -1,6 +1,7 @@
 import 'package:baket_mobile/core/constants/_constants.dart';
 import 'package:baket_mobile/features/wishlist/models/wishlist_model.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 // import '../models/product_model.dart';
 // import 'package:baket_mobile/features/product/models/product_model.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -172,11 +173,12 @@ class _WishlistPageState extends State<WishlistPage> {
                                         Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
-                                            const Text(
-                                              'Filter Options',
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold,
+                                            Text(
+                                              'Opsi Filter',
+                                              style: GoogleFonts.raleway(
+                                                fontSize: 24,
+                                                fontWeight: FontWeight.w900,
+                                                // color: const Color(0xFF01aae8),
                                               ),
                                             ),
                                             IconButton(
@@ -186,7 +188,11 @@ class _WishlistPageState extends State<WishlistPage> {
                                           ],
                                         ),
 
-                                        const Divider(),
+                                        const Divider(
+                                          thickness: 1,
+                                          color: Colors.black26,
+                                          height: 50,
+                                        ),
 
                                         // Sort Berdasarkan
                                         Row(
@@ -245,7 +251,7 @@ class _WishlistPageState extends State<WishlistPage> {
 
                                         // Categories
                                         const Text(
-                                          'Categories',
+                                          'Kategori',
                                           style: TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
@@ -296,7 +302,7 @@ class _WishlistPageState extends State<WishlistPage> {
                                                 backgroundColor: const Color(0xFF01aae8),
                                               ),
                                               child: const Text(
-                                                'Apply',
+                                                'Terapkan',
                                                 style: TextStyle(color: Colors.white),
                                               ),
                                             ),

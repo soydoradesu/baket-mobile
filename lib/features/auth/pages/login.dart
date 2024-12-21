@@ -22,6 +22,13 @@ class LoginApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: GoogleFonts.raleway().fontFamily,
         primarySwatch: Colors.blue,
+        primaryColor: const Color(0xFF01AAE8),
+        colorScheme: const ColorScheme.light(
+          primary: Color(0xFF01AAE8),
+          onPrimary: Colors.white,
+          secondary: Color(0xFF01AAE8),
+        ),
+        buttonTheme: const ButtonThemeData(textTheme: ButtonTextTheme.primary),
       ),
       home: const LoginPage(),
     );
@@ -62,7 +69,7 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 24),
                 // Title
                 const Text(
-                  'Log in to Your Account',
+                  'Masuk ke Akun Kamu!',
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -75,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
                   controller: _usernameController,
                   decoration: InputDecoration(
                     labelText: 'Username',
-                    hintText: 'Enter your username',
+                    hintText: 'Masukin usernamemu',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                       borderSide: const BorderSide(color: Color(0xFF01AAE8)),
@@ -93,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                   controller: _passwordController,
                   decoration: InputDecoration(
                     labelText: 'Password',
-                    hintText: 'Enter your password',
+                    hintText: 'Masukin passwordmu',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                       borderSide: const BorderSide(color: Color(0xFF01AAE8)),
@@ -113,7 +120,7 @@ class _LoginPageState extends State<LoginPage> {
                       // Forgot password logic
                     },
                     child: const Text(
-                      'Forgot Password?',
+                      'Lupa Password?',
                       style: TextStyle(color: Color(0xFF01AAE8)),
                     ),
                   ),
@@ -189,17 +196,16 @@ class _LoginPageState extends State<LoginPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Don't have an account?"),
+                    const Text("Belum punya akun?"),
                     TextButton(
                       onPressed: () {
-                        // TODO: Sign up logic
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(builder: (context) => const RegisterApp()),
                         );
                       },
                       child: const Text(
-                        'Sign Up',
+                        'Daftar',
                         style: TextStyle(color: Colors.blue),
                       ),
                     ),
