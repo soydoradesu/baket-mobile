@@ -3,6 +3,7 @@ part of '_datasources.dart';
 abstract class PostRemoteDataSource {
   Future<Parsed<Map<String, dynamic>>> getPost(PostParams args);
   Future<Parsed<Map<String, dynamic>>> like(LikeParams args);
+  Future<Parsed<Map<String, dynamic>>> addPost(AddPostParams args);
 }
 
 class PostRemoteDataSourceImpl extends PostRemoteDataSource {
@@ -11,6 +12,8 @@ class PostRemoteDataSourceImpl extends PostRemoteDataSource {
     final uri = Uri.parse(
       '${args.url}?q=${args.query}&limit=${args.limit}&page=${args.page}',
     );
+
+    LoggerService.i(uri.toString());
 
     dynamic response = await args.request.get(uri.toString());
 
@@ -38,6 +41,8 @@ class PostRemoteDataSourceImpl extends PostRemoteDataSource {
   Future<Parsed<Map<String, dynamic>>> like(LikeParams args) async {
     final uri = Uri.parse('${args.url}/${args.uuid}');
 
+    LoggerService.i(uri.toString());
+
     dynamic response = await args.request.postJson(
       uri.toString(),
       '',
@@ -51,7 +56,38 @@ class PostRemoteDataSourceImpl extends PostRemoteDataSource {
     }
 
     return Parsed.fromDynamicData(
-      200,
+      201,
+      response,
+    );
+  }
+
+  @override
+  Future<Parsed<Map<String, dynamic>>> addPost(AddPostParams args) async {
+    final uri = Uri.parse(args.url);
+
+    LoggerService.i(uri.toString());
+
+    final body = {
+      'content': args.content,
+    };
+
+    if (args.image != null) {
+      final bytes = await args.image!.readAsBytes();
+      final base64Image = base64Encode(bytes);
+      body['image'] = base64Image;
+    }
+
+    dynamic response = await args.request.postJson(
+      uri.toString(),
+      jsonEncode(body),
+    );
+
+    if (response['status'] != 'Successfully added post') {
+      throw response['detail'] ?? response.toString();
+    }
+
+    return Parsed.fromDynamicData(
+      201,
       response,
     );
   }

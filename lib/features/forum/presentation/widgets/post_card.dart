@@ -28,7 +28,7 @@ class PostCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CircleAvatar(
-              radius: 24,
+              radius: 21,
               backgroundColor: Colors.grey[200],
               child: ClipOval(
                 child: CachedNetworkImage(
@@ -73,22 +73,60 @@ class PostCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        Text(
+                          '  •  ${DateConverter.getTime(post.createdAt)}',
+                          style: FontTheme.raleway12w500black().copyWith(
+                            color: BaseColors.gray2,
+                            fontFamily: 'sans-serif',
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      DateConverter.getTime(post.createdAt),
-                      style: FontTheme.raleway12w500black().copyWith(
-                        color: BaseColors.gray2,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
                     Text(
                       post.content,
                       style: FontTheme.raleway16w400black().copyWith(
                         fontFamily: 'sans-serif',
                       ),
                     ),
+                    SizedBox(height: post.image != null ? 10 : 0),
+                    if (post.image != null)
+                      GestureDetector(
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => ImagePreviewPage(
+                              imageUrl: '${Endpoints.baseUrl}${post.image}',
+                            ),
+                          ),
+                        ),
+                        child: Hero(
+                          tag: '${Endpoints.baseUrl}${post.image}',
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              width: double.infinity,
+                              constraints: BoxConstraints(
+                                maxHeight:
+                                    MediaQuery.of(context).size.height / 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: BaseColors.gray5,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: CachedNetworkImage(
+                                imageUrl: '${Endpoints.baseUrl}${post.image}',
+                                errorWidget: (context, url, error) {
+                                  return Image.network(
+                                    'https://placehold.co/400',
+                                    fit: BoxFit.cover,
+                                  );
+                                },
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     const SizedBox(height: 14),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -125,7 +163,7 @@ class PostCard extends StatelessWidget {
                                 fontSize: 15,
                               ),
                             ),
-                            const SizedBox(width: 20),
+                            const SizedBox(width: 24),
                             const Padding(
                               padding: EdgeInsets.all(2),
                               child: Icon(

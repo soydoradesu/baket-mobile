@@ -8,4 +8,8 @@ abstract class PostRepository {
   Future<Either<Failure, Parsed<Map<String, dynamic>>>> like(
     LikeParams args,
   );
+
+  Future<Either<Failure, Parsed<Map<String, dynamic>>>> addPost(
+    AddPostParams args,
+  );
 }

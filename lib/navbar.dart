@@ -1,4 +1,3 @@
-import 'package:baket_mobile/app.dart';
 import 'package:baket_mobile/features/articles/pages/articlemain.dart';
 import 'package:baket_mobile/features/forum/presentation/pages/_pages.dart';
 import 'package:baket_mobile/features/product/pages/product_page.dart';
