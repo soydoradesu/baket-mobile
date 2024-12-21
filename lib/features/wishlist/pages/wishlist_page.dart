@@ -1,7 +1,8 @@
 import 'package:baket_mobile/core/constants/_constants.dart';
+import 'package:baket_mobile/features/wishlist/models/wishlist_model.dart';
 import 'package:flutter/material.dart';
 // import '../models/product_model.dart';
-import 'package:baket_mobile/features/product/models/product_model.dart';
+// import 'package:baket_mobile/features/product/models/product_model.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import '../widgets/wishlist_card.dart';
@@ -18,6 +19,8 @@ class _WishlistPageState extends State<WishlistPage> {
   String searchQuery = '';
   List<String> selectedCategories = [];
   String? sortOption;
+  String sortField = 'price';   // "price" or "date"
+  String sortDirection = 'asc'; // "asc" or "desc"
 
   static const String baseUrl = Endpoints.baseUrl;
 
@@ -31,7 +34,7 @@ class _WishlistPageState extends State<WishlistPage> {
   ];
 
   // Fetch products with query parameters
-  Future<List<Product>> fetchProducts(CookieRequest request) async {
+  Future<List<WishlistProduct>> fetchProducts(CookieRequest request) async {
     try {
       print('Fetching products with query: $searchQuery, categories: $selectedCategories, sort: $sortOption');
       
@@ -42,9 +45,6 @@ class _WishlistPageState extends State<WishlistPage> {
       }
       if (selectedCategories.isNotEmpty) {
         queryParams['category'] = selectedCategories;
-      }
-      if (sortOption != null && sortOption!.isNotEmpty) {
-        queryParams['sort'] = sortOption;
       }
 
       // Convert query parameters to URL
@@ -71,19 +71,35 @@ class _WishlistPageState extends State<WishlistPage> {
       print('JsonList length: ${jsonList.length}');
       print('First item in jsonList: ${jsonList.isNotEmpty ? jsonList.first : "empty"}');
 
-      List<Product> products = [];
+      List<WishlistProduct> products = [];
       for (var item in jsonList) {
         print('Processing item: $item');
-        products.add(Product.fromJson(item));
+        products.add(WishlistProduct.fromJson(item));
       }
       
       print('Processed products length: ${products.length}');
+      // Local Sorting (no server involvement)
+      if (sortOption == 'price_asc') {
+        products.sort((a, b) => a.price.compareTo(b.price));
+      } else if (sortOption == 'price_desc') {
+        products.sort((a, b) => b.price.compareTo(a.price));
+      } else if (sortOption == 'date_asc') {
+        products.sort((a, b) => a.addedOn.compareTo(b.addedOn)); // Oldest first
+      } else if (sortOption == 'date_desc') {
+        products.sort((a, b) => b.addedOn.compareTo(a.addedOn)); // Newest first
+      }
       return products;
+      
     } catch (e, stackTrace) {
       print('Error fetching products: $e');
       print('Stack trace: $stackTrace');
       return [];
     }
+  }
+
+  void _updateSortOption() {
+    sortOption = '${sortField}_${sortDirection}';
+    setState(() {}); // Refresh UI
   }
 
   @override
@@ -97,32 +113,6 @@ class _WishlistPageState extends State<WishlistPage> {
       ),
       body: Column(
         children: [
-          // Add Product Button (for admin)
-          // if (request.loggedIn && request.jsonData?['is_staff'] == true)
-            // Padding(
-            //   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            //   child: ElevatedButton(
-            //     onPressed: () async {
-            //       final result = await Navigator.push(
-            //         context,
-            //         MaterialPageRoute(builder: (context) => const AddProductPage()),
-            //       );
-            //       if (result == true) {
-            //         // Product was added successfully, refresh the list
-            //         setState(() {});
-            //       }
-            //     },
-            //     style: ElevatedButton.styleFrom(
-            //       backgroundColor: const Color(0xFF01aae8),
-            //       minimumSize: const Size(double.infinity, 40),
-            //     ),
-            //     child: const Text(
-            //       'Add New Product',
-            //       style: TextStyle(color: Colors.white),
-            //     ),
-            //   ),
-            // ),
-
           // Search and Filter Row
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -166,8 +156,7 @@ class _WishlistPageState extends State<WishlistPage> {
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: StatefulBuilder(
-                              builder: (BuildContext context,
-                                  StateSetter setModalState) {
+                              builder: (BuildContext context, StateSetter setModalState) {
                                 return Container(
                                   constraints: const BoxConstraints(
                                     maxWidth: 400,
@@ -176,13 +165,12 @@ class _WishlistPageState extends State<WishlistPage> {
                                   padding: const EdgeInsets.all(16),
                                   child: SingleChildScrollView(
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
+                                        // Header Row
                                         Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             const Text(
                                               'Filter Options',
@@ -193,42 +181,69 @@ class _WishlistPageState extends State<WishlistPage> {
                                             ),
                                             IconButton(
                                               icon: const Icon(Icons.close),
-                                              onPressed: () =>
-                                                  Navigator.pop(context),
+                                              onPressed: () => Navigator.pop(context),
                                             ),
                                           ],
                                         ),
+
                                         const Divider(),
-                                        const Text(
-                                          'Sort by Price',
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+
+                                        // Sort Berdasarkan
+                                        Row(
+                                          children: [
+                                            // Label
+                                            const Text(
+                                              'Sort Berdasarkan',
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+
+                                            // Toggle Icon for ascending/descending
+                                            IconButton(
+                                              icon: Icon(
+                                                sortDirection == 'asc' ? Icons.arrow_upward : Icons.arrow_downward,
+                                                color: Colors.blue,
+                                              ),
+                                              onPressed: () {
+                                                setModalState(() {
+                                                  sortDirection = (sortDirection == 'asc') ? 'desc' : 'asc';
+                                                  _updateSortOption();
+                                                });
+                                              },
+                                            ),
+                                          ],
                                         ),
+
+                                        // Radio Buttons for sortField
                                         RadioListTile<String>(
-                                          title: const Text('Harga paling rendah'),
-                                          value: 'price_asc',
-                                          groupValue: sortOption,
+                                          title: const Text('Harga'),
+                                          value: 'price',
+                                          groupValue: sortField,
                                           onChanged: (value) {
                                             setModalState(() {
-                                              sortOption = value;
+                                              sortField = value!;
+                                              _updateSortOption();
                                             });
-                                            setState(() {});
                                           },
                                         ),
                                         RadioListTile<String>(
-                                          title: const Text('Harga paling tinggi'),
-                                          value: 'price_desc',
-                                          groupValue: sortOption,
+                                          title: const Text('Waktu di-wishlist'),
+                                          value: 'date',
+                                          groupValue: sortField,
                                           onChanged: (value) {
                                             setModalState(() {
-                                              sortOption = value;
+                                              sortField = value!;
+                                              _updateSortOption();
                                             });
-                                            setState(() {});
                                           },
                                         ),
+
                                         const Divider(),
+
+                                        // Categories
                                         const Text(
                                           'Categories',
                                           style: TextStyle(
@@ -239,34 +254,36 @@ class _WishlistPageState extends State<WishlistPage> {
                                         ...categories.map((category) {
                                           return CheckboxListTile(
                                             title: Text(
-                                              category[0].toUpperCase() +
-                                                  category.substring(1),
+                                              category[0].toUpperCase() + category.substring(1),
                                             ),
-                                            value: selectedCategories
-                                                .contains(category),
+                                            value: selectedCategories.contains(category),
                                             onChanged: (bool? value) {
                                               setModalState(() {
                                                 if (value == true) {
                                                   selectedCategories.add(category);
                                                 } else {
-                                                  selectedCategories
-                                                      .remove(category);
+                                                  selectedCategories.remove(category);
                                                 }
                                               });
                                               setState(() {});
                                             },
                                           );
                                         }),
+
                                         const SizedBox(height: 16),
+
+                                        // Footer Row (Reset & Apply)
                                         Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
+                                          mainAxisAlignment: MainAxisAlignment.end,
                                           children: [
                                             TextButton(
                                               onPressed: () {
                                                 setModalState(() {
                                                   sortOption = null;
                                                   selectedCategories.clear();
+                                                  // Reset sorting
+                                                  sortField = 'price';
+                                                  sortDirection = 'asc';
                                                 });
                                                 setState(() {});
                                               },
@@ -274,16 +291,13 @@ class _WishlistPageState extends State<WishlistPage> {
                                             ),
                                             const SizedBox(width: 8),
                                             ElevatedButton(
-                                              onPressed: () =>
-                                                  Navigator.pop(context),
+                                              onPressed: () => Navigator.pop(context),
                                               style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    const Color(0xFF01aae8),
+                                                backgroundColor: const Color(0xFF01aae8),
                                               ),
                                               child: const Text(
                                                 'Apply',
-                                                style:
-                                                    TextStyle(color: Colors.white),
+                                                style: TextStyle(color: Colors.white),
                                               ),
                                             ),
                                           ],
@@ -306,7 +320,7 @@ class _WishlistPageState extends State<WishlistPage> {
 
           // Product Grid
           Expanded(
-            child: FutureBuilder<List<Product>>(
+            child: FutureBuilder<List<WishlistProduct>>(
               future: fetchProducts(request),
               builder: (context, snapshot) {
                 // Add debug prints for snapshot state
@@ -347,18 +361,29 @@ class _WishlistPageState extends State<WishlistPage> {
                 }
 
                 final products = snapshot.data!;
-                return GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                  ),
+                return Padding(
                   padding: const EdgeInsets.all(10),
-                  itemCount: products.length,
-                  itemBuilder: (context, index) {
-                    return ProductCard(product: products[index]);
-                  },
+
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: products.map((product) {
+                        return
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width / 2 - 15,
+                            child: WishListCard(
+                              product: product,
+                              onRemove: () {  
+                                setState(() {});
+                              },),
+                        );
+                      }).toList(),
+                    ),
+                  ),
                 );
+
               },
             ),
           ),
