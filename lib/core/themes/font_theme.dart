@@ -185,6 +185,14 @@ class FontTheme {
     );
   }
 
+  static TextStyle raleway16w600black() {
+    return GoogleFonts.raleway(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      color: BaseColors.mineShaft,
+    );
+  }
+
   static TextStyle raleway10w700black() {
     return GoogleFonts.raleway(
       fontSize: 10,
@@ -273,6 +281,9 @@ class FontTheme {
     );
   }
 
+
+  // =============== BLACK2 ==============
+
   static TextStyle raleway12w400black2() {
     return GoogleFonts.raleway(
       fontSize: 12,
@@ -289,6 +300,55 @@ class FontTheme {
     );
   }
 
+  static TextStyle raleway16w400black2() {
+    return GoogleFonts.raleway(
+      fontSize: 16,
+      fontWeight: FontWeight.w400,
+      color: BaseColors.gray2,
+    );
+  }
+
+  static TextStyle raleway10w500black2() {
+    return GoogleFonts.raleway(
+      fontSize: 10,
+      fontWeight: FontWeight.w500,
+      color: BaseColors.gray2,
+    );
+  }
+
+  static TextStyle raleway12w500black2() {
+    return GoogleFonts.raleway(
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
+      color: BaseColors.gray2,
+    );
+  }
+
+  static TextStyle raleway14w500black2() {
+    return GoogleFonts.raleway(
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      color: BaseColors.gray2,
+    );
+  }
+
+  static TextStyle raleway16w500black2() {
+    return GoogleFonts.raleway(
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      color: BaseColors.gray2,
+    );
+  }
+
+  static TextStyle raleway14w600black2() {
+    return GoogleFonts.raleway(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      color: BaseColors.gray2,
+    );
+  }
+
+  // =============== WHITE ==============
   static TextStyle raleway10w500white() {
     return GoogleFonts.raleway(
       fontSize: 10,
@@ -454,6 +514,175 @@ class FontTheme {
       fontSize: 32,
       fontWeight: FontWeight.w700,
       color: BaseColors.alabaster,
+    );
+  }
+
+  // ===================== BLUES ========================
+    static TextStyle raleway10w500blue1() {
+    return GoogleFonts.raleway(
+      fontSize: 10,
+      fontWeight: FontWeight.w500,
+      color: BaseColors.blue1,
+    );
+  }
+
+  static TextStyle raleway12w500blue1() {
+    return GoogleFonts.raleway(
+      fontSize: 12,
+      fontWeight: FontWeight.w500,
+      color: BaseColors.blue1,
+    );
+  }
+
+  static TextStyle raleway14w500blue1() {
+    return GoogleFonts.raleway(
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      color: BaseColors.blue1,
+    );
+  }
+
+  static TextStyle raleway16w500blue1() {
+    return GoogleFonts.raleway(
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      color: BaseColors.blue1,
+    );
+  }
+
+  static TextStyle raleway18w500blue1() {
+    return GoogleFonts.raleway(
+      fontSize: 18,
+      fontWeight: FontWeight.w500,
+      color: BaseColors.blue1,
+    );
+  }
+
+  static TextStyle raleway20w500blue1() {
+    return GoogleFonts.raleway(
+      fontSize: 20,
+      fontWeight: FontWeight.w500,
+      color: BaseColors.blue1,
+    );
+  }
+
+  static TextStyle raleway22w500blue1() {
+    return GoogleFonts.raleway(
+      fontSize: 22,
+      fontWeight: FontWeight.w500,
+      color: BaseColors.blue1,
+    );
+  }
+
+  static TextStyle raleway24w500blue1() {
+    return GoogleFonts.raleway(
+      fontSize: 24,
+      fontWeight: FontWeight.w500,
+      color: BaseColors.blue1,
+    );
+  }
+
+  static TextStyle raleway28w500blue1() {
+    return GoogleFonts.raleway(
+      fontSize: 28,
+      fontWeight: FontWeight.w500,
+      color: BaseColors.blue1,
+    );
+  }
+
+  static TextStyle raleway32w500blue1() {
+    return GoogleFonts.raleway(
+      fontSize: 32,
+      fontWeight: FontWeight.w500,
+      color: BaseColors.blue1,
+    );
+  }
+
+  static TextStyle raleway10w600blue1() {
+    return GoogleFonts.raleway(
+      fontSize: 10,
+      fontWeight: FontWeight.w600,
+      color: BaseColors.blue1,
+    );
+  }
+
+  static TextStyle raleway10w700blue1() {
+    return GoogleFonts.raleway(
+      fontSize: 10,
+      fontWeight: FontWeight.w700,
+      color: BaseColors.blue1,
+    );
+  }
+
+  static TextStyle raleway12w700blue1() {
+    return GoogleFonts.raleway(
+      fontSize: 12,
+      fontWeight: FontWeight.w700,
+      color: BaseColors.blue1,
+    );
+  }
+
+  static TextStyle raleway14w700blue1() {
+    return GoogleFonts.raleway(
+      fontSize: 14,
+      fontWeight: FontWeight.w700,
+      color: BaseColors.blue1,
+    );
+  }
+
+  static TextStyle raleway16w700blue1() {
+    return GoogleFonts.raleway(
+      fontSize: 16,
+      fontWeight: FontWeight.w700,
+      color: BaseColors.blue1,
+    );
+  }
+
+  static TextStyle raleway18w700blue1() {
+    return GoogleFonts.raleway(
+      fontSize: 18,
+      fontWeight: FontWeight.w700,
+      color: BaseColors.blue1,
+    );
+  }
+
+  static TextStyle raleway20w700blue1() {
+    return GoogleFonts.raleway(
+      fontSize: 20,
+      fontWeight: FontWeight.w700,
+      color: BaseColors.blue1,
+    );
+  }
+
+  static TextStyle raleway22w700blue1() {
+    return GoogleFonts.raleway(
+      fontSize: 22,
+      fontWeight: FontWeight.w700,
+      color: BaseColors.blue1,
+    );
+  }
+
+  static TextStyle raleway24w700blue1() {
+    return GoogleFonts.raleway(
+      fontSize: 24,
+      fontWeight: FontWeight.w700,
+      color: BaseColors.blue1,
+    );
+  }
+
+  static TextStyle raleway28w700blue1() {
+    return GoogleFonts.raleway(
+      fontSize: 28,
+      fontWeight: FontWeight.w700,
+      color: BaseColors.blue1,
+    );
+  }
+
+  static TextStyle raleway32w700blue1() {
+    return GoogleFonts.raleway(
+      fontSize: 32,
+      fontWeight: FontWeight.w700,
+      color: BaseColors.blue1,
     );
   }
 

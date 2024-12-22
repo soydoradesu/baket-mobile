@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:baket_mobile/core/bases/widgets/_widgets.dart';
 import 'package:baket_mobile/core/constants/_constants.dart';
+import 'package:baket_mobile/core/themes/_themes.dart';
 import 'package:baket_mobile/features/auth/pages/login.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -51,6 +53,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final _confirmPasswordController = TextEditingController();
   DateTime? _selectedDate;
   String? _selectedGender;
+  final labelStyleTheme = FontTheme.raleway14w500black();
+  final hintStyleTheme = FontTheme.raleway14w600black2();
 
   Future<void> _pickDate() async {
     final DateTime? picked = await showDatePicker(
@@ -58,7 +62,7 @@ class _RegisterPageState extends State<RegisterPage> {
       initialDate: DateTime.now(),
       firstDate: DateTime(1920, 1, 1),
       lastDate: DateTime.now(),
-      helpText: 'Pilih tanggal lahir kamu', // Optional customization
+      helpText: 'Pilih tanggal lahir kamu',
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
@@ -86,13 +90,9 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 const SizedBox(height: 24),
                 // Title
-                const Text(
+                Text(
                   'Buat Akun Kamu!',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF01AAE8),
-                  ),
+                  style: FontTheme.raleway22w700blue1()
                 ),
                 const SizedBox(height: 32),
                 // First Name and Last Name Fields
@@ -103,7 +103,9 @@ class _RegisterPageState extends State<RegisterPage> {
                         controller: _firstNameController,
                         decoration: InputDecoration(
                           labelText: 'Nama Depan',
+                          labelStyle: labelStyleTheme,
                           hintText: 'Masukin nama depanmu',
+                          hintStyle: hintStyleTheme,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
                             borderSide: const BorderSide(color: Color(0xFF01AAE8)),
@@ -121,7 +123,9 @@ class _RegisterPageState extends State<RegisterPage> {
                         controller: _lastNameController,
                         decoration: InputDecoration(
                           labelText: 'Nama Belakang',
+                          labelStyle: labelStyleTheme,
                           hintText: 'Masukin nama belakangmu',
+                          hintStyle: hintStyleTheme,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
                             borderSide: const BorderSide(color: Color(0xFF01AAE8)),
@@ -141,7 +145,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   controller: _usernameController,
                   decoration: InputDecoration(
                     labelText: 'Username',
+                    labelStyle: labelStyleTheme,
                     hintText: 'Masukin usernamemu',
+                    hintStyle: hintStyleTheme,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                       borderSide: const BorderSide(color: Color(0xFF01AAE8)),
@@ -159,7 +165,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   controller: _passwordController,
                   decoration: InputDecoration(
                     labelText: 'Password',
+                    labelStyle: labelStyleTheme,
                     hintText: 'Masukin passwordmu',
+                    hintStyle: hintStyleTheme,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                       borderSide: const BorderSide(color: Color(0xFF01AAE8)),
@@ -177,7 +185,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   controller: _confirmPasswordController,
                   decoration: InputDecoration(
                     labelText: 'Konfirmasi Password',
+                    labelStyle: labelStyleTheme,
                     hintText: 'Masukkan ulang passwordmu',
+                    hintStyle: hintStyleTheme,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                       borderSide: const BorderSide(color: Color(0xFF01AAE8)),
@@ -199,6 +209,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         child: InputDecorator(
                           decoration: InputDecoration(
                             labelText: 'Tanggal Lahir',
+                            labelStyle: labelStyleTheme,
                             hintText: 'dd/mm/yyyy',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8.0),
@@ -211,9 +222,9 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           child: Text(
                             _selectedDate == null
-                                ? ''
+                                ? 'yyy-MM-dd'
                                 : DateFormat('yyyy-MM-dd').format(_selectedDate!),
-                            style: const TextStyle(fontSize: 16),
+                            style: labelStyleTheme,
                           ),
                         ),
                       ),
@@ -224,7 +235,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       child: DropdownButtonFormField<String>(
                         decoration: InputDecoration(
                           labelText: 'Jenis Kelamin',
+                          labelStyle: labelStyleTheme,
                           hintText: 'Pria/Wanita',
+                          hintStyle: hintStyleTheme,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
                             borderSide: const BorderSide(color: Color(0xFF01AAE8)),
@@ -235,14 +248,20 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                         ),
                         value: _selectedGender,
-                        items: const [
+                        items: [
                           DropdownMenuItem(
                             value: 'Pria',
-                            child: Text('Pria'),
+                            child: Text(
+                              'Pria',
+                              style: hintStyleTheme,
+                            ),
                           ),
                           DropdownMenuItem(
                             value: 'Wanita',
-                            child: Text('Wanita'),
+                            child: Text(
+                              'Wanita',
+                              style: hintStyleTheme,
+                            ),
                           ),
                         ],
                         onChanged: (value) {
@@ -284,9 +303,13 @@ class _RegisterPageState extends State<RegisterPage> {
                     
                     if (context.mounted) {
                       if (response['status'] == 'success') {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Successfully registered!'),
+                        ScaffoldMessenger.of(context)
+                        ..hideCurrentSnackBar()
+                        ..showSnackBar(
+                          CustomSnackbar.snackbar(
+                            message: 'Registrasi berhasil!',
+                            icon: Icons.login,
+                            color: BaseColors.success,
                           ),
                         );
                         Navigator.pushReplacement(
@@ -295,27 +318,28 @@ class _RegisterPageState extends State<RegisterPage> {
                               builder: (context) => const LoginPage()),
                         );
                       } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(response['message'] ?? 'Failed to register!'),
+                        ScaffoldMessenger.of(context)
+                        ..hideCurrentSnackBar()
+                        ..showSnackBar(
+                          CustomSnackbar.snackbar(
+                            message: response['message'] ?? 'Registrasi gagal!',
+                            icon: Icons.error,
+                            color: BaseColors.error,
                           ),
                         );
                       }
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF01AAE8),
+                    backgroundColor: BaseColors.blue1,
                     minimumSize: const Size(double.infinity, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Register',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Color(0xFFFFFFFF),
-                    ),
+                    style: FontTheme.raleway16w500white(),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -323,7 +347,10 @@ class _RegisterPageState extends State<RegisterPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Sudah punya akun?"),
+                    Text(
+                      "Sudah punya akun?",
+                      style: FontTheme.raleway14w500black(),
+                    ),
                     TextButton(
                       onPressed: () {
                         Navigator.pushReplacement(
@@ -331,9 +358,9 @@ class _RegisterPageState extends State<RegisterPage> {
                           MaterialPageRoute(builder: (context) => const LoginApp()),
                         );
                       },
-                      child: const Text(
+                      child: Text(
                         'Sign In',
-                        style: TextStyle(color: Colors.blue),
+                        style: FontTheme.raleway14w500blue1(),
                       ),
                     ),
                   ],

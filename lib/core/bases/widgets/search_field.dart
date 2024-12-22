@@ -5,12 +5,14 @@ class SearchField extends StatelessWidget {
     required this.searchController,
     required this.focusNode,
     required this.onQueryChanged,
+    this.hintText = 'Search Tags',
     super.key,
   });
 
   final TextEditingController searchController;
   final FocusNode focusNode;
   final void Function(String) onQueryChanged;
+  final String hintText;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +21,7 @@ class SearchField extends StatelessWidget {
       controller: searchController,
       decoration: TextInputDecorator.search(
         context: context,
-        hint: 'Search Tags',
+        hint: hintText,
       ).copyWith(
         suffixIcon: focusNode.hasFocus || searchController.text.isNotEmpty
             ? InkWell(
