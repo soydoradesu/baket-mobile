@@ -1,3 +1,4 @@
+import 'package:baket_mobile/core/themes/_themes.dart';
 import 'package:flutter/material.dart';
 import '../models/product_model.dart';
 import '../models/review_model.dart';
@@ -104,13 +105,13 @@ class _ReviewCardState extends State<ReviewCard> {
       itemBuilder: (context, index) {
         final review = widget.reviews[index];
         return Card(
-          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
+          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
           elevation: 4,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -118,10 +119,10 @@ class _ReviewCardState extends State<ReviewCard> {
                   review.username,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: 15,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 Row(
                   children: List.generate(5, (starIndex) {
                     return Icon(
@@ -129,11 +130,11 @@ class _ReviewCardState extends State<ReviewCard> {
                           ? Icons.star
                           : Icons.star_border,
                       color: Colors.yellow[700],
-                      size: 20,
+                      size: 18,
                     );
                   }),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 Text(
                   review.comment,
                   style: const TextStyle(
@@ -141,7 +142,7 @@ class _ReviewCardState extends State<ReviewCard> {
                     color: Colors.black87,
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -189,7 +190,9 @@ class _ReviewCardState extends State<ReviewCard> {
                     IconButton(
                       icon: const Icon(Icons.thumb_up),
                       iconSize: 16,
-                      color: Colors.black,
+                      color: review.isLiked
+                          ? const Color(0xFF01aae8)
+                          : Colors.black,
                       onPressed: () async {
                         String? csrfToken = await fetchCsrfToken(
                           Uri.parse(
@@ -202,12 +205,16 @@ class _ReviewCardState extends State<ReviewCard> {
                                 updateLikeCount(index, newLikeCount),
                             csrfToken,
                           );
+
+                          setState(() {
+                            review.isLiked = !review.isLiked;
+                          });
                         } else {
                           print("Failed to fetch CSRF token.");
                         }
                       },
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 2),
                     Text(
                       '${review.likeReviewCount}',
                       style: TextStyle(

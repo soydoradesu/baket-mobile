@@ -107,8 +107,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   Future<List<Review>> fetchReviews(String productId) async {
     try {
-      final response = await request.get(
-        '$baseUrl/catalogue/review-json/$productId');
+      final response = await http.get(Uri.parse(Endpoints.reviews(productId)));
 
       if (response.statusCode == 200) {
         originalReviews = reviewFromJson(response.body);
@@ -222,7 +221,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           color: Color(0xFF01aae8),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 8),
                       // Product average rating
                       FutureBuilder<Map<String, dynamic>>(
                         future: _ratingData,
@@ -247,13 +246,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           final averageRating = data['average_rating'];
                           final reviewCount = data['review_count'];
 
-                          // Calculate the number of filled and empty stars
                           int fullStars = averageRating.toInt();
                           int emptyStars = 5 - fullStars;
 
                           return Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 4.0, vertical: 4.0),
+                            padding:
+                                const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -489,7 +487,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text(response['message'] ?? "Terdapat kesalahan, silakan coba lagi."),
+                                        content: Text(response['message'] ??
+                                            "Terdapat kesalahan, silakan coba lagi."),
                                       ),
                                     );
                                   }

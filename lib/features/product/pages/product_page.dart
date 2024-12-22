@@ -53,8 +53,9 @@ class _ProductPageState extends State<ProductPage> {
   // Fetch products with query parameters
   Future<List<Product>> fetchProducts(CookieRequest request) async {
     try {
-      print('Fetching products with query: $searchQuery, categories: $selectedCategories, sort: $sortOption');
-      
+      print(
+          'Fetching products with query: $searchQuery, categories: $selectedCategories, sort: $sortOption');
+
       // Build query parameters
       Map<String, dynamic> queryParams = {};
       if (searchQuery.isNotEmpty) {
@@ -67,14 +68,16 @@ class _ProductPageState extends State<ProductPage> {
         queryParams['sort'] = sortOption;
       }
 
-      Uri uri = Uri.parse('${Endpoints.baseUrl}/catalogue/prod-json/').replace(queryParameters: {
-        ...queryParams.map((key, value) => MapEntry(key, value is List ? value.join(',') : value)),
+      Uri uri = Uri.parse('${Endpoints.baseUrl}/catalogue/prod-json/')
+          .replace(queryParameters: {
+        ...queryParams.map((key, value) =>
+            MapEntry(key, value is List ? value.join(',') : value)),
       });
 
       print('Fetching from URL: $uri');
       var response = await request.get(uri.toString());
       print('Full response: $response');
-      
+
       if (response == null) {
         print('Response is null');
         return [];
@@ -88,14 +91,15 @@ class _ProductPageState extends State<ProductPage> {
 
       List<dynamic> jsonList = response['products'];
       print('JsonList length: ${jsonList.length}');
-      print('First item in jsonList: ${jsonList.isNotEmpty ? jsonList.first : "empty"}');
+      print(
+          'First item in jsonList: ${jsonList.isNotEmpty ? jsonList.first : "empty"}');
 
       List<Product> products = [];
       for (var item in jsonList) {
         print('Processing item: $item');
         products.add(Product.fromJson(item));
       }
-      
+
       print('Processed products length: ${products.length}');
       return products;
     } catch (e, stackTrace) {
@@ -114,18 +118,21 @@ class _ProductPageState extends State<ProductPage> {
       //   title: const Text('Product Catalogue'),
       //   backgroundColor: const Color(0xFF01aae8),
       // ),
-      body: SafeArea( // Wrapping the Column with SafeArea
+      body: SafeArea(
+        // Wrapping the Column with SafeArea
         child: Column(
           children: [
             // Add Product Button (for admin)
             if (request.loggedIn && request.jsonData?['is_staff'] == true)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: ElevatedButton(
                   onPressed: () async {
                     final result = await Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const AddProductPage()),
+                      MaterialPageRoute(
+                          builder: (context) => const AddProductPage()),
                     );
                     if (result == true) {
                       // Product was added successfully, refresh the list
@@ -179,7 +186,8 @@ class _ProductPageState extends State<ProductPage> {
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: StatefulBuilder(
-                                builder: (BuildContext context, StateSetter setModalState) {
+                                builder: (BuildContext context,
+                                    StateSetter setModalState) {
                                   return Container(
                                     constraints: const BoxConstraints(
                                       maxWidth: 400,
@@ -219,7 +227,8 @@ class _ProductPageState extends State<ProductPage> {
                                             ),
                                           ),
                                           RadioListTile<String>(
-                                            title: const Text('Harga paling rendah'),
+                                            title: const Text(
+                                                'Harga paling rendah'),
                                             value: 'price_asc',
                                             groupValue: sortOption,
                                             onChanged: (value) {
@@ -230,7 +239,8 @@ class _ProductPageState extends State<ProductPage> {
                                             },
                                           ),
                                           RadioListTile<String>(
-                                            title: const Text('Harga paling tinggi'),
+                                            title: const Text(
+                                                'Harga paling tinggi'),
                                             value: 'price_desc',
                                             groupValue: sortOption,
                                             onChanged: (value) {
@@ -259,7 +269,8 @@ class _ProductPageState extends State<ProductPage> {
                                               onChanged: (bool? value) {
                                                 setModalState(() {
                                                   if (value == true) {
-                                                    selectedCategories.add(category);
+                                                    selectedCategories
+                                                        .add(category);
                                                   } else {
                                                     selectedCategories
                                                         .remove(category);
@@ -294,8 +305,8 @@ class _ProductPageState extends State<ProductPage> {
                                                 ),
                                                 child: const Text(
                                                   'Apply',
-                                                  style:
-                                                      TextStyle(color: Colors.white),
+                                                  style: TextStyle(
+                                                      color: Colors.white),
                                                 ),
                                               ),
                                             ],
@@ -360,7 +371,8 @@ class _ProductPageState extends State<ProductPage> {
 
                   final products = snapshot.data!;
                   return GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 10,
