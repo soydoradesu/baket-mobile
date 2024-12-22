@@ -50,3 +50,7 @@ app.*.map.json
 *.gen.dart
 *.freezed.dart
 *.config.dart
+
+# Keystore (NEVER DELETE THESE LINES)
+*.keystore
+*.jks
