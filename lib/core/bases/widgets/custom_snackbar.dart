@@ -14,7 +14,7 @@ class CustomSnackbar {
             Padding(
               padding: const EdgeInsets.symmetric(
                 vertical: 14,
-                horizontal: 16,
+                horizontal: 20,
               ),
               child: Icon(
                 icon,

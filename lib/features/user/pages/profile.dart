@@ -1,4 +1,5 @@
 // lib/features/user/pages/profile_page.dart
+import 'package:baket_mobile/core/bases/widgets/_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:baket_mobile/core/themes/_themes.dart';
@@ -126,13 +127,25 @@ class _ProfileAppState extends State<ProfileApp> {
     Navigator.of(context).pop();
 
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile picture updated successfully!')),
+      ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        CustomSnackbar.snackbar(
+          message: 'Foto profil berhasil diupdate!',
+          icon: Icons.check_circle,
+          color: BaseColors.success,
+        ),
       );
       await refreshProfile(); // Refresh the profile to show the new picture
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to update profile picture.')),
+      ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        CustomSnackbar.snackbar(
+          message: 'Foto profil gagal diupdate',
+          icon: Icons.error,
+          color: BaseColors.error,
+        ),
       );
     }
   }
@@ -398,15 +411,25 @@ class _ProfileAppState extends State<ProfileApp> {
                               result['last_name']!,
                             );
                             if (updated) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text('Name updated successfully!')),
+                              ScaffoldMessenger.of(context)
+                              ..hideCurrentSnackBar()
+                              ..showSnackBar(
+                                CustomSnackbar.snackbar(
+                                  message: 'Nama berhasil diupdate!',
+                                  icon: Icons.check_circle,
+                                  color: BaseColors.success,
+                                ),
                               );
                               await refreshProfile();
                             } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text('Failed to update name.')),
+                              ScaffoldMessenger.of(context)
+                              ..hideCurrentSnackBar()
+                              ..showSnackBar(
+                                CustomSnackbar.snackbar(
+                                  message: 'Nama gagal diupdate',
+                                  icon: Icons.error,
+                                  color: BaseColors.error,
+                                ),
                               );
                             }
                           }
@@ -570,11 +593,14 @@ class _ProfileAppState extends State<ProfileApp> {
               label: 'Username',
               value: user.username,
               onTap: () {
-                // Update username if you have that endpoint
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text(
-                          'Untuk sementara, username belum bisa diupdate')),
+                ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(
+                  CustomSnackbar.snackbar(
+                    message: 'Belum bisa diupdate!',
+                    icon: Icons.error,
+                    color: BaseColors.error,
+                  ),
                 );
               },
               isLoading: false, // No shimmer on value
@@ -590,15 +616,25 @@ class _ProfileAppState extends State<ProfileApp> {
                   final updated =
                       await profileService.updateBirthDate(selectedDate);
                   if (updated) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Tanggal Lahir berhasil diupdate!')),
+                    ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(
+                      CustomSnackbar.snackbar(
+                        message: 'Tgl lahir berhasil diupdate!',
+                        icon: Icons.check_circle,
+                        color: BaseColors.success,
+                      ),
                     );
                     await refreshProfile();
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Tanggal Lahir gagal diupdate :(')),
+                    ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(
+                      CustomSnackbar.snackbar(
+                        message: 'Tgl lahir gagal diupdate',
+                        icon: Icons.error,
+                        color: BaseColors.error,
+                      ),
                     );
                   }
                 }
@@ -618,15 +654,25 @@ class _ProfileAppState extends State<ProfileApp> {
                   final updated =
                       await profileService.updateGender(newGender);
                   if (updated) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Jenis Kelamin berhasil diupdate!')),
+                    ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(
+                      CustomSnackbar.snackbar(
+                        message: 'Gender berhasil diupdate!',
+                        icon: Icons.check_circle,
+                        color: BaseColors.success,
+                      ),
                     );
                     await refreshProfile();
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Jenis Kelamin gagal diupdate :(')),
+                    ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(
+                      CustomSnackbar.snackbar(
+                        message: 'Gender gagal diupdate',
+                        icon: Icons.error,
+                        color: BaseColors.error,
+                      ),
                     );
                   }
                 }
@@ -665,14 +711,25 @@ class _ProfileAppState extends State<ProfileApp> {
                 if (newEmail != null && newEmail.isNotEmpty) {
                   final updated = await profileService.updateEmail(newEmail);
                   if (updated) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Email berhasil diupdate!')),
+                    ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(
+                      CustomSnackbar.snackbar(
+                        message: 'Email berhasil diupdate!',
+                        icon: Icons.check_circle,
+                        color: BaseColors.success,
+                      ),
                     );
                     await refreshProfile();
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Email gagal diupdate :(')),
+                    ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(
+                      CustomSnackbar.snackbar(
+                        message: 'Email gagal diupdate!',
+                        icon: Icons.error,
+                        color: BaseColors.error,
+                      ),
                     );
                   }
                 }
@@ -693,14 +750,25 @@ class _ProfileAppState extends State<ProfileApp> {
                 if (newPhone != null && newPhone.isNotEmpty) {
                   final updated = await profileService.updatePhone(newPhone);
                   if (updated) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Nomor HP berhasil diupdate!')),
+                    ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(
+                      CustomSnackbar.snackbar(
+                        message: 'Nomor HP berhasil diupdate!',
+                        icon: Icons.check_circle,
+                        color: BaseColors.success,
+                      ),
                     );
                     await refreshProfile();
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Nomor HP gagal diupdate :(')),
+                    ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(
+                      CustomSnackbar.snackbar(
+                        message: 'Nomor HP gagal diupdate!',
+                        icon: Icons.error,
+                        color: BaseColors.error,
+                      ),
                     );
                   }
                 }
@@ -720,9 +788,14 @@ class _ProfileAppState extends State<ProfileApp> {
                     if (context.mounted) {
                       if (response["status"]) {
                         String uname = response["username"];
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content: Text("$message Sampai jumpa, $uname.")),
+                        ScaffoldMessenger.of(context)
+                        ..hideCurrentSnackBar()
+                        ..showSnackBar(
+                          CustomSnackbar.snackbar(
+                            message: 'Sampai jumpa, $uname.',
+                            icon: Icons.logout,
+                            color: BaseColors.success,
+                          ),
                         );
                         Navigator.pushReplacement(
                           context,
