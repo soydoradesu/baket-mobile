@@ -5,6 +5,9 @@ import '../models/review_model.dart';
 import '../pages/product_detail_page.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:baket_mobile/core/constants/_constants.dart';
+
+const String baseUrl = Endpoints.baseUrl;
 
 Future<String?> fetchCsrfToken(Uri url) async {
   try {
@@ -25,7 +28,7 @@ Future<String?> fetchCsrfToken(Uri url) async {
 }
 
 Future<void> deleteReview(int reviewId) async {
-  final url = Uri.parse('http://127.0.0.1:8000/catalogue/delete/$reviewId/');
+  final url = Uri.parse('$baseUrl/catalogue/delete/$reviewId/');
 
   try {
     final response = await http.post(url);
@@ -47,7 +50,7 @@ Future<void> deleteReview(int reviewId) async {
 
 Future<void> toggleLikeReview(
     int reviewId, Function(int) onUpdate, String csrfToken) async {
-  final url = Uri.parse('http://127.0.0.1:8000/catalogue/like-review/');
+  final url = Uri.parse('$baseUrl/catalogue/like-review/');
 
   try {
     final response = await http.post(
@@ -193,7 +196,7 @@ class _ReviewCardState extends State<ReviewCard> {
                       onPressed: () async {
                         String? csrfToken = await fetchCsrfToken(
                           Uri.parse(
-                              'http://127.0.0.1:8000/catalogue/api/csrf-token/'),
+                              '$baseUrl/catalogue/api/csrf-token/'),
                         );
                         if (csrfToken != null) {
                           await toggleLikeReview(
