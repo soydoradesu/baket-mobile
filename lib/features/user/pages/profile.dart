@@ -1,28 +1,27 @@
 // lib/features/user/pages/profile_page.dart
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:baket_mobile/core/themes/_themes.dart';
+import 'package:baket_mobile/features/user/widgets/shimmer.dart'; // Import shimmer widgets
+import 'package:baket_mobile/features/user/widgets/biodata_item.dart'; // Updated BiodataItem
 import 'package:baket_mobile/features/user/widgets/custom_super_tooltip.dart';
 import 'package:baket_mobile/features/wishlist/pages/wishlist_page.dart';
 import 'package:baket_mobile/features/product/pages/cart_page.dart';
-import 'package:baket_mobile/services/logger_service.dart';
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
+import 'package:baket_mobile/features/auth/pages/login.dart';
 import 'package:baket_mobile/core/constants/_constants.dart';
+import 'package:baket_mobile/features/user/models/user_profile.dart';
+import 'package:baket_mobile/features/user/services/profile_service.dart';
+import 'package:baket_mobile/features/user/dialogs/edit_dialogs.dart';
+import 'package:baket_mobile/features/product/services/cart_service.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:intl/intl.dart';
-import 'package:image_picker/image_picker.dart'; // For image picking
-import 'dart:io'; // For handling File
+import 'package:image_picker/image_picker.dart';
+import 'package:shimmer/shimmer.dart';
+import 'dart:io';
 import 'package:super_tooltip/super_tooltip.dart';
 
-import '../models/user_profile.dart';
-import '../services/profile_service.dart';
-import '../dialogs/edit_dialogs.dart';
-import '../widgets/biodata_item.dart';
-import '../../product/services/cart_service.dart';
-
-import 'package:baket_mobile/features/auth/pages/login.dart'; // Adjust if needed
-
 class ProfileApp extends StatefulWidget {
-  const ProfileApp({super.key});
+  const ProfileApp({Key? key}) : super(key: key);
 
   @override
   State<ProfileApp> createState() => _ProfileAppState();
@@ -32,7 +31,7 @@ class _ProfileAppState extends State<ProfileApp> {
   late Future<UserProfile> futureProfile;
   late ProfileService profileService;
   late CartService cartService;
-  late int cartCount;
+  int? cartCount;
 
   // Tooltip controllers
   final _biodataTooltipController = SuperTooltipController();
@@ -138,9 +137,46 @@ class _ProfileAppState extends State<ProfileApp> {
     }
   }
 
-  Future<bool>? _willPopCallback() async {
-    // If the tooltip is open we don't pop the page on a backbutton press
-    // but close the ToolTip
+  void _showProfilePicturePreview(String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(16.0),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Stack(
+              children: [
+                Image.network(
+                  imageUrl,
+                  fit: BoxFit.contain,
+                  // Handle errors
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: Colors.grey.shade200,
+                    child:
+                        const Center(child: Icon(Icons.error_outline, size: 60)),
+                  ),
+                ),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: IconButton(
+                    icon: const Icon(Icons.close,
+                        color: Colors.white, size: 30),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<bool> _willPopCallback() async {
+    // If the tooltip is open, close it instead of popping the page
     if (_biodataTooltipController.isVisible) {
       await _biodataTooltipController.hideTooltip();
       return false;
@@ -158,27 +194,138 @@ class _ProfileAppState extends State<ProfileApp> {
 
     return PopScope(
       onPopInvokedWithResult: (didPop, result) => _willPopCallback,
-      child: Scaffold(
-        // appBar: AppBar(
-        //   title: const Text('Profile'),
-        //   backgroundColor: const Color(0xFF01AAE8),
-        // ),
-        body: FutureBuilder<UserProfile>(
-          future: futureProfile,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else if (snapshot.hasData) {
-              final user = snapshot.data!;
-              return SafeArea(
-                child: buildProfilePage(context, user, request)
-              );
-            } else {
-              return const Center(child: Text('No data available'));
-            }
-          },
+       child: Scaffold(
+        body: SafeArea( // Ensuring SafeArea wraps the entire content
+          child: FutureBuilder<UserProfile>(
+            future: futureProfile,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                // Display shimmer placeholders selectively
+                return SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Profile Section Shimmer
+                        const ShimmerProfileSection(),
+                        const SizedBox(height: 32),
+
+                        // Wishlist Section Shimmer
+                        const ShimmerWishlistSection(),
+                        const SizedBox(height: 16),
+
+                        // Cart Section Shimmer
+                        const ShimmerCartSection(),
+                        const SizedBox(height: 32),
+
+                        Divider(thickness: 1, height: 32, color: Colors.grey[300]),
+
+                        // Biodata Diri Section Header (No shimmer)
+                        Row(
+                          children: [
+                            Text(
+                              'Biodata Diri',
+                              style: FontTheme.raleway22w700blue1(),
+                            ),
+                            const SizedBox(width: 10),
+                            CustomSuperTooltip(
+                              tooltipText: biodataTooltipContent,
+                              controller: _biodataTooltipController,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        // Biodata Items: labels as text, values as shimmer
+                        BiodataItem(
+                          label: 'Username',
+                          value: '', // Empty since it's loading
+                          onTap: () {},
+                          isLoading: true, // Shimmer on value
+                        ),
+                        const SizedBox(height: 8),
+                        BiodataItem(
+                          label: 'Tanggal Lahir',
+                          value: '', // Empty since it's loading
+                          onTap: () {},
+                          isLoading: true, // Shimmer on value
+                        ),
+                        const SizedBox(height: 8),
+                        BiodataItem(
+                          label: 'Jenis Kelamin',
+                          value: '', // Empty since it's loading
+                          onTap: () {},
+                          isLoading: true, // Shimmer on value
+                        ),
+
+                        Divider(thickness: 1, height: 32, color: Colors.grey[300]),
+
+                        // Kontak User Section Header (No shimmer)
+                        Row(
+                          children: [
+                            Text(
+                              'Kontak User',
+                              style: FontTheme.raleway22w700blue1(),
+                            ),
+                            const SizedBox(width: 10),
+                            CustomSuperTooltip(
+                              tooltipText: kontakTooltipContent,
+                              controller: _kontakTooltipController,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        // Kontak Items: labels as text, values as shimmer
+                        BiodataItem(
+                          label: 'Email',
+                          value: '', // Empty since it's loading
+                          onTap: () {},
+                          isLoading: true, // Shimmer on value
+                        ),
+                        const SizedBox(height: 8),
+                        BiodataItem(
+                          label: 'Nomor Hp',
+                          value: '', // Empty since it's loading
+                          onTap: () {},
+                          isLoading: true, // Shimmer on value
+                        ),
+                        const SizedBox(height: 64),
+
+                        // Logout Button Section (Centered)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center, // Center the button
+                          children: [
+                            ElevatedButton.icon(
+                              onPressed: () {}, // Disabled during loading
+                              icon: const Icon(Icons.logout, color: BaseColors.gray2),
+                              label: Text(
+                                'Keluar Akun',
+                                style: FontTheme.raleway14w500black2(),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: BaseColors.gray5,
+                                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else if (snapshot.hasData) {
+                final user = snapshot.data!;
+                return buildProfilePage(context, user, request);
+              } else {
+                return const Center(child: Text('No data available'));
+              }
+            },
+          ),
         ),
       ),
     );
@@ -199,10 +346,14 @@ class _ProfileAppState extends State<ProfileApp> {
                   alignment: Alignment.center,
                   clipBehavior: Clip.none,
                   children: [
-                    CircleAvatar(
-                      backgroundImage:
-                          NetworkImage('$baseUrl${user.profilePicture}'),
-                      radius: 50,
+                    InkWell(
+                      onTap: () =>
+                          _showProfilePicturePreview('$baseUrl${user.profilePicture}'),
+                      child: CircleAvatar(
+                        backgroundImage:
+                            NetworkImage('$baseUrl${user.profilePicture}'),
+                        radius: 50,
+                      ),
                     ),
                     Positioned(
                       bottom: -12,
@@ -216,7 +367,7 @@ class _ProfileAppState extends State<ProfileApp> {
                             color: Colors.white,
                             shape: BoxShape.circle,
                             border:
-                                Border.all(color: Colors.grey[300]!, width: 1),
+                                Border.all(color: Colors.grey.shade300, width: 1),
                           ),
                           padding: const EdgeInsets.all(4),
                           child: const Icon(
@@ -230,76 +381,72 @@ class _ProfileAppState extends State<ProfileApp> {
                   ],
                 ),
                 const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    InkWell(
-                      onTap: () async {
-                        final result = await showNameDialog(
-                          context,
-                          currentFirst: user.firstName,
-                          currentLast: user.lastName,
-                        );
-                        if (result != null) {
-                          final updated = await profileService.updateName(
-                            result['first_name']!,
-                            result['last_name']!,
+                Expanded( // Use Expanded to prevent overflow
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      InkWell(
+                        onTap: () async {
+                          final result = await showNameDialog(
+                            context,
+                            currentFirst: user.firstName,
+                            currentLast: user.lastName,
                           );
-                          if (updated) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Name updated successfully!')),
+                          if (result != null) {
+                            final updated = await profileService.updateName(
+                              result['first_name']!,
+                              result['last_name']!,
                             );
-                            await refreshProfile();
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Failed to update name.')),
-                            );
+                            if (updated) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Name updated successfully!')),
+                              );
+                              await refreshProfile();
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Failed to update name.')),
+                              );
+                            }
                           }
-                        }
-                      },
-                      child: Row(
-                        children: [
-                          Text(
-                            '${user.firstName} ${user.lastName}',
-                            style: GoogleFonts.raleway(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black,
+                        },
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                '${user.firstName} ${user.lastName}',
+                                style: FontTheme.raleway22w700black(),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          const Icon(
-                            Icons.arrow_forward_ios,
-                            size: 16,
-                            color: Colors.black54,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF01AAE8),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        user.isSuperuser
-                            ? 'Superuser'
-                            : user.isStaff
-                                ? 'Staff'
-                                : 'Member',
-                        style: GoogleFonts.raleway(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
+                            const SizedBox(width: 8),
+                            const Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                              color: Colors.black54,
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF01AAE8),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          user.isSuperuser
+                              ? 'Superuser'
+                              : user.isStaff
+                                  ? 'Staff'
+                                  : 'Member',
+                          style: FontTheme.raleway12w700white(),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -339,20 +486,13 @@ class _ProfileAppState extends State<ProfileApp> {
                         const SizedBox(width: 16),
                         Text(
                           '${user.wishlistCount} dalam wishlist',
-                          style: GoogleFonts.raleway(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: FontTheme.raleway14w600black(),
                         ),
                       ],
                     ),
                     Text(
                       'beli sekarang!',
-                      style: GoogleFonts.raleway(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFF01AAE8),
-                      ),
+                      style: FontTheme.raleway12w700blue1(),
                     ),
                   ],
                 ),
@@ -361,7 +501,7 @@ class _ProfileAppState extends State<ProfileApp> {
 
             const SizedBox(height: 16),
 
-// Cart Section
+            // Cart Section
             InkWell(
               onTap: () {
                 Navigator.push(
@@ -389,22 +529,17 @@ class _ProfileAppState extends State<ProfileApp> {
                       children: [
                         const Icon(Icons.shopping_cart, color: Colors.black),
                         const SizedBox(width: 16),
-                        Text(
-                          '$cartCount dalam keranjang',
-                          style: GoogleFonts.raleway(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                        cartCount == null
+                            ? const ShimmerCartCount() // Use shimmer widget
+                            : Text(
+                                '$cartCount dalam keranjang',
+                                style: FontTheme.raleway14w600black(),
+                              ),
                       ],
                     ),
                     Text(
                       'checkout yuk!',
-                      style: GoogleFonts.raleway(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFF01AAE8),
-                      ),
+                      style: FontTheme.raleway12w700blue1(),
                     ),
                   ],
                 ),
@@ -415,15 +550,12 @@ class _ProfileAppState extends State<ProfileApp> {
 
             Divider(thickness: 1, height: 32, color: Colors.grey[300]),
 
+            // Biodata Diri Section
             Row(
               children: [
                 Text(
                   'Biodata Diri',
-                  style: GoogleFonts.raleway(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF01AAE8),
-                  ),
+                  style: FontTheme.raleway22w700blue1(),
                 ),
                 const SizedBox(width: 10),
                 CustomSuperTooltip(
@@ -433,6 +565,7 @@ class _ProfileAppState extends State<ProfileApp> {
               ],
             ),
             const SizedBox(height: 8),
+            // Biodata Items
             BiodataItem(
               label: 'Username',
               value: user.username,
@@ -440,10 +573,13 @@ class _ProfileAppState extends State<ProfileApp> {
                 // Update username if you have that endpoint
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                      content: Text('Untuk sementara, username belum bisa diupdate')),
+                      content: Text(
+                          'Untuk sementara, username belum bisa diupdate')),
                 );
               },
+              isLoading: false, // No shimmer on value
             ),
+            const SizedBox(height: 8),
             BiodataItem(
               label: 'Tanggal Lahir',
               value: DateFormat('dd-MM-yyyy').format(user.birthDate),
@@ -467,16 +603,20 @@ class _ProfileAppState extends State<ProfileApp> {
                   }
                 }
               },
+              isLoading: false, // No shimmer on value
             ),
+            const SizedBox(height: 8),
             BiodataItem(
               label: 'Jenis Kelamin',
               value: user.gender,
               onTap: () async {
-                final newGender = await showGenderDialog(context, user.gender);
+                final newGender =
+                    await showGenderDialog(context, user.gender);
                 if (newGender != null &&
                     newGender.isNotEmpty &&
                     newGender != user.gender) {
-                  final updated = await profileService.updateGender(newGender);
+                  final updated =
+                      await profileService.updateGender(newGender);
                   if (updated) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -485,24 +625,23 @@ class _ProfileAppState extends State<ProfileApp> {
                     await refreshProfile();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Jenis Kelamin gagal diupdate :(')),
+                      const SnackBar(
+                          content: Text('Jenis Kelamin gagal diupdate :(')),
                     );
                   }
                 }
               },
+              isLoading: false, // No shimmer on value
             ),
 
             Divider(thickness: 1, height: 32, color: Colors.grey[300]),
 
+            // Kontak User Section
             Row(
               children: [
                 Text(
                   'Kontak User',
-                  style: GoogleFonts.raleway(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF01AAE8),
-                  ),
+                  style: FontTheme.raleway22w700blue1(),
                 ),
                 const SizedBox(width: 10),
                 CustomSuperTooltip(
@@ -512,6 +651,7 @@ class _ProfileAppState extends State<ProfileApp> {
               ],
             ),
             const SizedBox(height: 8),
+            // Kontak Items
             BiodataItem(
               label: 'Email',
               value: user.email ?? '-',
@@ -537,7 +677,9 @@ class _ProfileAppState extends State<ProfileApp> {
                   }
                 }
               },
+              isLoading: false, // No shimmer on value
             ),
+            const SizedBox(height: 8),
             BiodataItem(
               label: 'Nomor Hp',
               value: user.phoneNumber ?? '-',
@@ -563,47 +705,75 @@ class _ProfileAppState extends State<ProfileApp> {
                   }
                 }
               },
+              isLoading: false, // No shimmer on value
             ),
             const SizedBox(height: 64),
 
-            Center(
-              child: ElevatedButton.icon(
-                onPressed: () async {
-                  final response = await profileService.logoutUser();
-                  String message = response["message"];
-                  if (context.mounted) {
-                    if (response["status"]) {
-                      String uname = response["username"];
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content: Text("$message Sampai jumpa, $uname.")),
-                      );
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const LoginPage()),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(message)),
-                      );
+            // Logout Button Section (Centered)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center, // Center the button
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    final response = await profileService.logoutUser();
+                    String message = response["message"];
+                    if (context.mounted) {
+                      if (response["status"]) {
+                        String uname = response["username"];
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text("$message Sampai jumpa, $uname.")),
+                        );
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginPage()),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(message)),
+                        );
+                      }
                     }
-                  }
-                },
-                icon: const Icon(Icons.logout, color: Colors.black54),
-                label: const Text('Keluar Akun',
-                    style: TextStyle(color: Colors.black)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey[100],
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
+                  },
+                  icon: const Icon(Icons.logout, color: BaseColors.gray2),
+                  label: Text(
+                    'Keluar Akun',
+                    style: FontTheme.raleway14w500black2(),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: BaseColors.gray5,
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Shimmer for Cart Count Text (Used in Profile Page)
+class ShimmerCartCount extends StatelessWidget {
+  const ShimmerCartCount({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+
+    // Adjust width to be responsive
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade300,
+      highlightColor: Colors.grey.shade100,
+      child: Container(
+        width: screenWidth * 0.35, // 35% of screen width
+        height: 16,
+        color: Colors.white,
       ),
     );
   }

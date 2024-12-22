@@ -95,7 +95,7 @@ class _ProductPageState extends State<ProductPage> {
       body: Column(
         children: [
           // Add Product Button (for admin)
-          // if (request.loggedIn && request.jsonData?['is_staff'] == true)
+          if (request.loggedIn && request.jsonData?['is_staff'] == true)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: ElevatedButton(

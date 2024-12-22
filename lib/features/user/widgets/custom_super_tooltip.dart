@@ -1,3 +1,4 @@
+import 'package:baket_mobile/core/themes/_themes.dart';
 import 'package:flutter/material.dart';
 import 'package:super_tooltip/super_tooltip.dart';
 
@@ -11,7 +12,7 @@ class CustomSuperTooltip extends StatelessWidget {
     super.key,
     required this.tooltipText,
     required this.controller,
-    this.iconColor = Colors.blue,
+    this.iconColor = BaseColors.blue1,
     this.iconSize = 18.0,
   });
 
@@ -24,7 +25,7 @@ class CustomSuperTooltip extends StatelessWidget {
       child: SuperTooltip(
         showBarrier: true,
         controller: controller,
-        backgroundColor: Colors.white,
+        backgroundColor: BaseColors.white,
         arrowTipDistance: 15,
         arrowBaseWidth: 15,
         arrowLength: 15,
@@ -40,11 +41,7 @@ class CustomSuperTooltip extends StatelessWidget {
           child: Text(
             tooltipText,
             softWrap: true,
-            style: const TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
+            style: FontTheme.raleway14w500black(),
             // textAlign: TextAlign.justify,
           ),
         ),
