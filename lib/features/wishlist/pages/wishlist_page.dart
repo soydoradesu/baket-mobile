@@ -1,12 +1,14 @@
+// lib/features/wishlist/pages/wishlist_page.dart
+
+import 'package:baket_mobile/core/bases/widgets/_widgets.dart';
 import 'package:baket_mobile/core/constants/_constants.dart';
 import 'package:baket_mobile/features/wishlist/models/wishlist_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-// import '../models/product_model.dart';
-// import 'package:baket_mobile/features/product/models/product_model.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import '../widgets/wishlist_card.dart';
+import 'dart:async'; // For debounce
 
 class WishlistPage extends StatefulWidget {
   const WishlistPage({super.key});
@@ -33,6 +35,41 @@ class _WishlistPageState extends State<WishlistPage> {
     'smartwatch',
     'television',
   ];
+
+  // Controllers for the SearchField
+  late TextEditingController searchController;
+  late FocusNode searchFocusNode;
+
+  // Debounce timer
+  Timer? _debounce;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the controllers
+    searchController = TextEditingController();
+    searchFocusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    // Cancel the debounce timer if active
+    _debounce?.cancel();
+    // Dispose of the controllers to free up resources
+    searchController.dispose();
+    searchFocusNode.dispose();
+    super.dispose();
+  }
+
+  // Debounced onQueryChanged function
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() {
+        searchQuery = query;
+      });
+    });
+  }
 
   // Fetch products with query parameters
   Future<List<WishlistProduct>> fetchProducts(CookieRequest request) async {
@@ -119,27 +156,16 @@ class _WishlistPageState extends State<WishlistPage> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                // Search Bar
+                // Replace the existing Expanded TextField with SearchField
                 Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Cari Barang',
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        searchQuery = value;
-                      });
-                    },
-                    onSubmitted: (value) {
-                      setState(() {});
-                    },
+                  child: SearchField(
+                    searchController: searchController,
+                    focusNode: searchFocusNode,
+                    hintText: 'Cari Barang', // Custom hint text
+                    onQueryChanged: _onSearchChanged, // Use the debounced function
                   ),
                 ),
-                // Filter Button
+                // Filter Button remains unchanged
                 const SizedBox(width: 8),
                 Container(
                   decoration: BoxDecoration(
@@ -369,27 +395,25 @@ class _WishlistPageState extends State<WishlistPage> {
                 final products = snapshot.data!;
                 return Padding(
                   padding: const EdgeInsets.all(10),
-
                   child: Align(
                     alignment: Alignment.topLeft,
                     child: Wrap(
                       spacing: 10,
                       runSpacing: 10,
                       children: products.map((product) {
-                        return
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width / 2 - 15,
-                            child: WishListCard(
-                              product: product,
-                              onRemove: () {  
-                                setState(() {});
-                              },),
+                        return SizedBox(
+                          width: MediaQuery.of(context).size.width / 2 - 15,
+                          child: WishListCard(
+                            product: product,
+                            onRemove: () {  
+                              setState(() {});
+                            },
+                          ),
                         );
                       }).toList(),
                     ),
                   ),
                 );
-
               },
             ),
           ),

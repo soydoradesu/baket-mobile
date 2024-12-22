@@ -1,3 +1,4 @@
+import 'package:baket_mobile/core/bases/widgets/_widgets.dart';
 import 'package:baket_mobile/core/constants/_constants.dart';
 import 'package:baket_mobile/core/themes/_themes.dart';
 import 'package:baket_mobile/features/auth/pages/register.dart';
@@ -151,20 +152,16 @@ class _LoginPageState extends State<LoginPage> {
                       String message = response['message'];
                       String uname = response['username'];
                       if (context.mounted) {
-                        Get.offAll(() =>
-                            const NavigationMenu()); // Replaces the current route stack entirely.
-                        // Navigator.pushReplacement(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //       builder: (context) => const App()),
-                        // );
+                        Get.offAll(() => const NavigationMenu());
                         ScaffoldMessenger.of(context)
-                          ..hideCurrentSnackBar()
-                          ..showSnackBar(
-                            SnackBar(
-                                content:
-                                    Text("$message Selamat datang, $uname.")),
-                          );
+                        ..hideCurrentSnackBar()
+                        ..showSnackBar(
+                          CustomSnackbar.snackbar(
+                            message: 'Selamat datang, $uname.',
+                            icon: Icons.login,
+                            color: BaseColors.success,
+                          ),
+                        );
                       }
                     } else {
                       if (context.mounted) {

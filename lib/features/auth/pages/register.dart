@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:baket_mobile/core/bases/widgets/_widgets.dart';
 import 'package:baket_mobile/core/constants/_constants.dart';
 import 'package:baket_mobile/core/themes/_themes.dart';
 import 'package:baket_mobile/features/auth/pages/login.dart';
@@ -302,9 +303,13 @@ class _RegisterPageState extends State<RegisterPage> {
                     
                     if (context.mounted) {
                       if (response['status'] == 'success') {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Successfully registered!'),
+                        ScaffoldMessenger.of(context)
+                        ..hideCurrentSnackBar()
+                        ..showSnackBar(
+                          CustomSnackbar.snackbar(
+                            message: 'Registrasi berhasil!',
+                            icon: Icons.login,
+                            color: BaseColors.success,
                           ),
                         );
                         Navigator.pushReplacement(
@@ -313,9 +318,13 @@ class _RegisterPageState extends State<RegisterPage> {
                               builder: (context) => const LoginPage()),
                         );
                       } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(response['message'] ?? 'Failed to register!'),
+                        ScaffoldMessenger.of(context)
+                        ..hideCurrentSnackBar()
+                        ..showSnackBar(
+                          CustomSnackbar.snackbar(
+                            message: response['message'] ?? 'Registrasi gagal!',
+                            icon: Icons.error,
+                            color: BaseColors.error,
                           ),
                         );
                       }
