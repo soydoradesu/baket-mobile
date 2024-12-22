@@ -1,4 +1,5 @@
 // Reusable Biodata Item Widget
+import 'package:baket_mobile/core/themes/_themes.dart';
 import 'package:flutter/material.dart';
 
 class BiodataItem extends StatelessWidget {
@@ -27,11 +28,7 @@ class BiodataItem extends StatelessWidget {
               flex: 3,
               child: Text(
                 label,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey[600],
-                ),
+                style: FontTheme.raleway14w500black2(),
               ),
             ),
 
@@ -40,11 +37,7 @@ class BiodataItem extends StatelessWidget {
               flex: 5,
               child: Text(
                 value,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
+                style: FontTheme.raleway16w600black(),
               ),
             ),
             // Arrow Icon

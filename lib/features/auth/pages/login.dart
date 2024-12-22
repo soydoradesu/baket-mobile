@@ -1,4 +1,5 @@
 import 'package:baket_mobile/core/constants/_constants.dart';
+import 'package:baket_mobile/core/themes/_themes.dart';
 import 'package:baket_mobile/features/auth/pages/register.dart';
 import 'package:baket_mobile/services/pref_service.dart';
 import 'package:flutter/material.dart';
@@ -69,13 +70,9 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 24),
                 // Title
-                const Text(
+                Text(
                   'Masuk ke Akun Kamu!',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF01AAE8),
-                  ),
+                  style: FontTheme.raleway22w700blue1(), 
                 ),
                 const SizedBox(height: 32),
                 // Username Field
@@ -83,14 +80,16 @@ class _LoginPageState extends State<LoginPage> {
                   controller: _usernameController,
                   decoration: InputDecoration(
                     labelText: 'Username',
+                    labelStyle: FontTheme.raleway14w500black(),
                     hintText: 'Masukin usernamemu',
+                    hintStyle: FontTheme.raleway14w600black2(),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: Color(0xFF01AAE8)),
+                      borderSide: const BorderSide(color: BaseColors.blue1),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: Color(0xFF01AAE8)),
+                      borderSide: const BorderSide(color: BaseColors.blue1),
                     ),
                   ),
                 ),
@@ -101,7 +100,9 @@ class _LoginPageState extends State<LoginPage> {
                   controller: _passwordController,
                   decoration: InputDecoration(
                     labelText: 'Password',
+                    labelStyle: FontTheme.raleway14w500black(),
                     hintText: 'Masukin passwordmu',
+                    hintStyle: FontTheme.raleway14w600black2(),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                       borderSide: const BorderSide(color: Color(0xFF01AAE8)),
@@ -120,9 +121,9 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: () {
                       // Forgot password logic
                     },
-                    child: const Text(
+                    child: Text(
                       'Lupa Password?',
-                      style: TextStyle(color: Color(0xFF01AAE8)),
+                      style: FontTheme.raleway12w500blue1(),
                     ),
                   ),
                 ),
@@ -186,18 +187,15 @@ class _LoginPageState extends State<LoginPage> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF01AAE8),
+                    backgroundColor: BaseColors.blue1,
                     minimumSize: const Size(double.infinity, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Login',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Color(0xFFFFFFFF),
-                    ),
+                    style: FontTheme.raleway16w500white(),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -205,7 +203,10 @@ class _LoginPageState extends State<LoginPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Belum punya akun?"),
+                    Text(
+                      "Belum punya akun?",
+                      style: FontTheme.raleway14w500black(),
+                    ),
                     TextButton(
                       onPressed: () {
                         Navigator.pushReplacement(
@@ -214,9 +215,9 @@ class _LoginPageState extends State<LoginPage> {
                               builder: (context) => const RegisterApp()),
                         );
                       },
-                      child: const Text(
+                      child: Text(
                         'Daftar',
-                        style: TextStyle(color: Colors.blue),
+                        style: FontTheme.raleway14w500blue1(),
                       ),
                     ),
                   ],

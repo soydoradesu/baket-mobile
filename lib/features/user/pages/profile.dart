@@ -1,4 +1,5 @@
 // lib/features/user/pages/profile_page.dart
+import 'package:baket_mobile/core/themes/_themes.dart';
 import 'package:baket_mobile/features/user/widgets/custom_super_tooltip.dart';
 import 'package:baket_mobile/features/wishlist/pages/wishlist_page.dart';
 import 'package:baket_mobile/features/product/pages/cart_page.dart';
@@ -32,7 +33,7 @@ class _ProfileAppState extends State<ProfileApp> {
   late Future<UserProfile> futureProfile;
   late ProfileService profileService;
   late CartService cartService;
-  late int cartCount;
+  int? cartCount;
 
   // Tooltip controllers
   final _biodataTooltipController = SuperTooltipController();
@@ -138,6 +139,42 @@ class _ProfileAppState extends State<ProfileApp> {
     }
   }
 
+  void _showProfilePicturePreview(String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(16.0),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Stack(
+              children: [
+                Image.network(
+                  imageUrl,
+                  fit: BoxFit.contain,
+                  // Handle errors
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: Colors.grey[200],
+                    child: const Center(child: Icon(Icons.error_outline, size: 60)),
+                  ),
+                ),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future<bool>? _willPopCallback() async {
     // If the tooltip is open we don't pop the page on a backbutton press
     // but close the ToolTip
@@ -199,10 +236,12 @@ class _ProfileAppState extends State<ProfileApp> {
                   alignment: Alignment.center,
                   clipBehavior: Clip.none,
                   children: [
-                    CircleAvatar(
-                      backgroundImage:
-                          NetworkImage('$baseUrl${user.profilePicture}'),
-                      radius: 50,
+                    InkWell(
+                      onTap: () => _showProfilePicturePreview('$baseUrl${user.profilePicture}'),
+                      child: CircleAvatar(
+                        backgroundImage: NetworkImage('$baseUrl${user.profilePicture}'),
+                        radius: 50,
+                      ),
                     ),
                     Positioned(
                       bottom: -12,
@@ -263,11 +302,7 @@ class _ProfileAppState extends State<ProfileApp> {
                         children: [
                           Text(
                             '${user.firstName} ${user.lastName}',
-                            style: GoogleFonts.raleway(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black,
-                            ),
+                            style: FontTheme.raleway22w700black(),
                           ),
                           const SizedBox(width: 8),
                           const Icon(
@@ -292,11 +327,7 @@ class _ProfileAppState extends State<ProfileApp> {
                             : user.isStaff
                                 ? 'Staff'
                                 : 'Member',
-                        style: GoogleFonts.raleway(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                        ),
+                        style: FontTheme.raleway12w700white(),
                       ),
                     ),
                   ],
@@ -339,20 +370,13 @@ class _ProfileAppState extends State<ProfileApp> {
                         const SizedBox(width: 16),
                         Text(
                           '${user.wishlistCount} dalam wishlist',
-                          style: GoogleFonts.raleway(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: FontTheme.raleway14w600black(),
                         ),
                       ],
                     ),
                     Text(
                       'beli sekarang!',
-                      style: GoogleFonts.raleway(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFF01AAE8),
-                      ),
+                      style: FontTheme.raleway12w700blue1(),
                     ),
                   ],
                 ),
@@ -391,20 +415,13 @@ class _ProfileAppState extends State<ProfileApp> {
                         const SizedBox(width: 16),
                         Text(
                           '$cartCount dalam keranjang',
-                          style: GoogleFonts.raleway(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: FontTheme.raleway14w600black(),
                         ),
                       ],
                     ),
                     Text(
                       'checkout yuk!',
-                      style: GoogleFonts.raleway(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFF01AAE8),
-                      ),
+                      style: FontTheme.raleway12w700blue1(), 
                     ),
                   ],
                 ),
@@ -419,11 +436,7 @@ class _ProfileAppState extends State<ProfileApp> {
               children: [
                 Text(
                   'Biodata Diri',
-                  style: GoogleFonts.raleway(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF01AAE8),
-                  ),
+                  style: FontTheme.raleway22w700blue1(),
                 ),
                 const SizedBox(width: 10),
                 CustomSuperTooltip(
@@ -498,11 +511,7 @@ class _ProfileAppState extends State<ProfileApp> {
               children: [
                 Text(
                   'Kontak User',
-                  style: GoogleFonts.raleway(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF01AAE8),
-                  ),
+                  style: FontTheme.raleway22w700blue1(),
                 ),
                 const SizedBox(width: 10),
                 CustomSuperTooltip(
@@ -590,11 +599,11 @@ class _ProfileAppState extends State<ProfileApp> {
                     }
                   }
                 },
-                icon: const Icon(Icons.logout, color: Colors.black54),
-                label: const Text('Keluar Akun',
-                    style: TextStyle(color: Colors.black)),
+                icon: const Icon(Icons.logout, color: BaseColors.gray2),
+                label: Text('Keluar Akun',
+                    style: FontTheme.raleway14w500black()),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey[100],
+                  backgroundColor: BaseColors.gray5,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                   shape: RoundedRectangleBorder(
