@@ -4,6 +4,7 @@ import 'package:baket_mobile/core/constants/_constants.dart';
 import 'package:baket_mobile/features/articles/models/articlep.dart';
 import 'package:baket_mobile/features/articles/models/comment.dart';
 import 'package:baket_mobile/features/articles/widgets/articlecard.dart';
+import 'package:baket_mobile/features/articles/widgets/comment.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -232,6 +233,10 @@ class _CommentSectionState extends State<CommentSection> {
   final TextEditingController _postController = TextEditingController();
   String _post = '';
 
+  void _refresh() {
+    setState(() {});
+  }
+
   Future<List<CommentWidget>> fetchComments(CookieRequest request) async {
     final url = "$baseUrl/articles/json/comment/${widget.articleId}/";
     final response = await request.get(url);
@@ -251,6 +256,7 @@ class _CommentSectionState extends State<CommentSection> {
           hasEdit: c.hasEdited,
           isLike: c.isLike,
           isUser: c.canEdit,
+          onDelete: _refresh,
         ));
       }
     }
@@ -375,200 +381,5 @@ class _CommentSectionState extends State<CommentSection> {
           ),
         ],
       );
-  }
-}
-
-class CommentWidget extends StatefulWidget {
-  final String commentId;
-  final String username;
-  final String comment;
-  final String timestamp;
-  final int likes;
-  final bool hasEdit;
-  final bool isLike;
-  final bool isUser;
-
-  const CommentWidget({
-    super.key, 
-    required this.commentId,
-    required this.username,
-    required this.comment,
-    required this.timestamp,
-    required this.likes,
-    this.hasEdit = false,
-    this.isLike = false,
-    this.isUser = false,
-  });
-
-  @override
-  _CommentWidgetState createState() => _CommentWidgetState();
-}
-
-class _CommentWidgetState extends State<CommentWidget> {
-  static const String baseUrl = Endpoints.baseUrl;
-  final _formKey = GlobalKey<FormState>();
-  bool _isEditing = false;
-  int _likes = 0;
-  bool _isLike = false;
-  final TextEditingController _commentController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    _commentController.text = widget.comment;
-    _likes = widget.likes;
-    _isLike = widget.isLike;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final request = context.watch<CookieRequest>();
-    return Container(
-      margin: const EdgeInsets.only(top: 16), // equivalent to mt-4
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                widget.username,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const Text(' - '),
-              Text(
-                widget.timestamp,
-                style: TextStyle(color: Colors.grey[500]),
-              ),
-              if (widget.hasEdit)
-                const Text(" (edited)"),
-            ],
-          ),
-          _isEditing
-              ? Column(
-                children: [
-                  Form(
-                    key: _formKey,
-                    child: TextFormField(
-                      maxLines: 3,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
-                      ),
-                      controller: _commentController,
-                      style: const TextStyle(
-                        overflow: TextOverflow.visible, // equivalent to break-words
-                        leadingDistribution: TextLeadingDistribution.even, // equivalent to leading-7
-                      ),
-                      onChanged: (String? value) {
-                        setState(() {
-                          _commentController.text = value!;
-                        });
-                      },
-                      validator: (String? value) {
-                        if (value == null || value.isEmpty) {
-                          return "Write a comment...";
-                        }
-                        return null;
-                      },
-                    )
-                  ),
-                  Row(
-                    children: [
-                      ElevatedButton(
-                        onPressed: () async {},
-                        child: Text("Save"),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            _commentController.text = widget.comment;
-                            _isEditing = false;
-                          });
-                        },
-                        child: Text("Cancel"),
-                      ),
-                    ],
-                  ),
-                ],
-              )
-              : Text(
-                  widget.comment,
-                  style: const TextStyle(
-                    overflow: TextOverflow.visible, // equivalent to break-words
-                    leadingDistribution: TextLeadingDistribution.even, // equivalent to leading-7
-                  ),
-                ),
-          if (!_isEditing)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () async {
-                        final url = "$baseUrl/articles/likeComment/${widget.commentId}/";
-                        await request.get(url);
-                        setState(() {
-                          _isLike = !_isLike;
-                          _likes = _isLike ? _likes + 1 : _likes - 1;
-                        });
-                      },
-                      child: Icon(
-                        Icons.thumb_up,
-                        color: _isLike ? Colors.blue : Colors.grey[400], // equivalent to #c8c8c8
-                        size: 18,
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left:4.0),
-                      child: Text('${_likes}'), // like count
-                    ),
-                  ],
-                ),
-                if (widget.isUser)
-                  Row(
-                    children: [
-                      const SizedBox(width: 10), // equivalent to ml-5
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _isEditing = !_isEditing;
-                          });
-                        },
-                        child: const Icon(
-                          Icons.edit,
-                          color: Colors.blue, // equivalent to #01aae8
-                          size: 18,
-                        ),
-                      ),
-                      const SizedBox(width: 5), // equivalent to m-1
-                      GestureDetector(
-                        onTap: () {
-                          // Add your delete button tap handler here
-                          // For example:
-                          // _deleteComment();
-                        },
-                        child: const Icon(
-                          Icons.delete,
-                          color: Colors.red, // equivalent to #ff0000
-                          size: 18,
-                        ),
-                      ),
-                    ],
-                  ),
-              ],
-            ),
-        ],
-      ),
-    );
-  }
-
-  // Example of an asynchronous function to delete comment
-  Future<void> _deleteComment() async {
-    // Simulate a network request
-    await Future.delayed(Duration(milliseconds: 500));
-    // Remove the comment from the list
-    // For example:
-    // Navigator.pop(context);
   }
 }
