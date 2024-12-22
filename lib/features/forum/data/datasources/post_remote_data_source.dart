@@ -3,7 +3,9 @@ part of '_datasources.dart';
 abstract class PostRemoteDataSource {
   Future<Parsed<Map<String, dynamic>>> getPost(PostParams args);
   Future<Parsed<Map<String, dynamic>>> like(LikeParams args);
-  Future<Parsed<Map<String, dynamic>>> addPost(AddPostParams args);
+  Future<Parsed<Map<String, dynamic>>> addPost(ManagePostParams args);
+  Future<Parsed<Map<String, dynamic>>> editPost(ManagePostParams args);
+  Future<Parsed<Map<String, dynamic>>> deletePost(String args);
 }
 
 class PostRemoteDataSourceImpl extends PostRemoteDataSource {
@@ -48,12 +50,12 @@ class PostRemoteDataSourceImpl extends PostRemoteDataSource {
       '',
     );
 
-    LoggerService.i(response.toString());
-
     if (response['status'] != 'Successfully liked' &&
         response['status'] != 'Successfully unliked') {
       throw response['detail'] ?? response.toString();
     }
+
+    LoggerService.i(response.toString());
 
     return Parsed.fromDynamicData(
       201,
@@ -62,7 +64,7 @@ class PostRemoteDataSourceImpl extends PostRemoteDataSource {
   }
 
   @override
-  Future<Parsed<Map<String, dynamic>>> addPost(AddPostParams args) async {
+  Future<Parsed<Map<String, dynamic>>> addPost(ManagePostParams args) async {
     final uri = Uri.parse(args.url);
 
     LoggerService.i(uri.toString());
@@ -74,7 +76,7 @@ class PostRemoteDataSourceImpl extends PostRemoteDataSource {
     if (args.image != null) {
       final bytes = await args.image!.readAsBytes();
       final base64Image = base64Encode(bytes);
-      body['image'] = base64Image;
+      body['image'] = '$base64Image.${args.image!.path.split('.').last}';
     }
 
     dynamic response = await args.request.postJson(
@@ -86,8 +88,70 @@ class PostRemoteDataSourceImpl extends PostRemoteDataSource {
       throw response['detail'] ?? response.toString();
     }
 
+    LoggerService.i(response.toString());
+
     return Parsed.fromDynamicData(
       201,
+      response,
+    );
+  }
+
+  @override
+  Future<Parsed<Map<String, dynamic>>> editPost(ManagePostParams args) async {
+    final uri = Uri.parse(args.url);
+
+    LoggerService.i(uri.toString());
+
+    final body = {
+      'content': args.content,
+    };
+
+    if (args.image != null) {
+      if (args.image!.path.isEmpty) {
+        body['image'] = 'null';
+      } else {
+        final bytes = await args.image!.readAsBytes();
+        final base64Image = base64Encode(bytes);
+        body['image'] = '$base64Image.${args.image!.path.split('.').last}';
+      }
+    }
+
+    dynamic response = await args.request.postJson(
+      uri.toString(),
+      jsonEncode(body),
+    );
+
+    if (response['status'] != 'Successfully updated post') {
+      throw response['detail'] ?? response.toString();
+    }
+
+    LoggerService.i(response.toString());
+
+    return Parsed.fromDynamicData(
+      201,
+      response,
+    );
+  }
+
+  @override
+  Future<Parsed<Map<String, dynamic>>> deletePost(String args) async {
+    final uri = Uri.parse('${Endpoints.deletePost}/$args');
+
+    LoggerService.i(uri.toString());
+
+    dynamic response = await CookieRequest().post(
+      uri.toString(),
+      '',
+    );
+
+    if (response['status'] != 'Successfully deleted post') {
+      throw response['detail'] ?? response.toString();
+    }
+
+    LoggerService.i(response.toString());
+
+    return Parsed.fromDynamicData(
+      204,
       response,
     );
   }

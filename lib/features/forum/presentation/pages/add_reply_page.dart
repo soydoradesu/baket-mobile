@@ -1,31 +1,32 @@
 part of '_pages.dart';
 
-class AddPostPage extends StatefulWidget {
-  const AddPostPage({
-    required this.onReceiveNewPost,
+class AddReplyPage extends StatefulWidget {
+  const AddReplyPage({
+    required this.onReceiveNewReply,
+    required this.postId,
     super.key,
   });
 
-  final VoidCallback onReceiveNewPost;
+  final VoidCallback onReceiveNewReply;
+  final String postId;
 
   @override
-  State<AddPostPage> createState() => _AddPostPageState();
+  State<AddReplyPage> createState() => _AddReplyPageState();
 }
 
-class _AddPostPageState extends State<AddPostPage> {
+class _AddReplyPageState extends State<AddReplyPage> {
   late CookieRequest request;
-  late final AddPostUseCase addPostUseCase;
+  late final AddReplyUseCase addReplyUseCase;
   late final FocusNode _focusNode;
   late final TextEditingController _textController;
 
   int _wordCount = 0;
-  File? _image;
 
   @override
   void initState() {
     super.initState();
-    addPostUseCase = AddPostUseCase(
-      PostRepositoryImpl(PostRemoteDataSourceImpl()),
+    addReplyUseCase = AddReplyUseCase(
+      ReplyRepositoryImpl(ReplyRemoteDataSourceImpl()),
     );
     _focusNode = FocusNode();
     _textController = TextEditingController();
@@ -61,17 +62,8 @@ class _AddPostPageState extends State<AddPostPage> {
           ),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              InkWell(
-                onTap: () => _pickImage(context),
-                child: Icon(
-                  LucideIcons.imagePlus,
-                  color:
-                      _image == null ? BaseColors.vividBlue : BaseColors.gray3,
-                  size: 24,
-                ),
-              ),
               SizedBox(
                 width: 25,
                 height: 25,
@@ -115,7 +107,7 @@ class _AddPostPageState extends State<AddPostPage> {
                 ),
               ),
               child: Text(
-                'Post',
+                'Reply',
                 style: FontTheme.raleway16w700white(),
               ),
             ),
@@ -134,7 +126,6 @@ class _AddPostPageState extends State<AddPostPage> {
                   padding: const EdgeInsets.only(top: 4),
                   child: CircleAvatar(
                     radius: 21,
-                    backgroundColor: Colors.grey[200],
                     child: ClipOval(
                       child: CachedNetworkImage(
                         imageUrl: '${Endpoints.baseUrl}'
@@ -156,7 +147,7 @@ class _AddPostPageState extends State<AddPostPage> {
                         maxLines: null,
                         decoration: TextInputDecorator.form(
                           'content',
-                          'Post something!',
+                          'Write your reply here...',
                           isRequired: true,
                         ).copyWith(
                           hintStyle: TextStyle(
@@ -178,30 +169,6 @@ class _AddPostPageState extends State<AddPostPage> {
                           _wordCount = value.length;
                         }),
                       ),
-                      if (_image != null) ...[
-                        const SizedBox(height: 16),
-                        GestureDetector(
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ImagePreviewPage(
-                                haveAnimation: false,
-                                image: FileImage(_image!),
-                                tag: 'preview-image',
-                              ),
-                            ),
-                          ),
-                          child: Hero(
-                            tag: 'preview-image',
-                            child: ImageBox(
-                              image: FileImage(_image!),
-                              onDelete: () => setState(() {
-                                _image = null;
-                              }),
-                            ),
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                 ),
@@ -211,54 +178,6 @@ class _AddPostPageState extends State<AddPostPage> {
         ),
       ),
     );
-  }
-
-  Future<void> _pickImage(BuildContext context) async {
-    if (_image != null) {
-      return;
-    }
-
-    final pickedImage = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-    );
-
-    if (pickedImage != null) {
-      final fileSizeInBytes = await pickedImage.length();
-      final fileSizeInMB = fileSizeInBytes / (1024 * 1024);
-
-      if (fileSizeInMB > 5) {
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(
-            CustomSnackbar.snackbar(
-              message: 'File needs to be less than 5MB',
-              icon: LucideIcons.xCircle,
-              color: BaseColors.danger,
-            ),
-          );
-      }
-
-      if (!(pickedImage.path.endsWith('.png') ||
-          pickedImage.path.endsWith('.jpg') ||
-          pickedImage.path.endsWith('.jpeg'))) {
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(
-            CustomSnackbar.snackbar(
-              message: 'Unsupported file type',
-              icon: LucideIcons.xCircle,
-              color: BaseColors.danger,
-            ),
-          );
-        return;
-      }
-
-      setState(() {
-        _image = File(pickedImage.path);
-      });
-    }
   }
 
   void _onSubmit() async {
@@ -276,15 +195,14 @@ class _AddPostPageState extends State<AddPostPage> {
     }
 
     final content = _textController.text;
-    final image = _image;
 
     // Hit API
-    final res = await addPostUseCase.execute(
-      ManagePostParams(
+    final res = await addReplyUseCase.execute(
+      ManageReplyParams(
         request: request,
-        url: Endpoints.addPost,
+        postId: widget.postId,
+        url: Endpoints.addReply,
         content: content,
-        image: image,
       ),
     );
 
@@ -317,8 +235,7 @@ class _AddPostPageState extends State<AddPostPage> {
       },
       (right) {
         // Update UI
-        widget.onReceiveNewPost();
-
+        widget.onReceiveNewReply();
         Navigator.pop(context);
       },
     );

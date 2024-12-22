@@ -28,6 +28,7 @@ dependencies:
   flutter_rating_stars: ^1.1.0
   cached_network_image: ^3.4.1
   shared_preferences: ^2.3.4
+  dropdown_button2: ^2.3.9
   shimmer: ^3.0.0
   flutter_launcher_icons: ^0.14.2
 

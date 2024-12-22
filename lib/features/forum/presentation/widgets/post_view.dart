@@ -41,7 +41,10 @@ class _PostViewState extends State<PostView>
     if (!mounted) return;
 
     postUseCase = PostUseCase(PostRepositoryImpl(PostRemoteDataSourceImpl()));
-    likeUseCase = LikeUseCase(PostRepositoryImpl(PostRemoteDataSourceImpl()));
+    likeUseCase = LikeUseCase(
+      PostRepositoryImpl(PostRemoteDataSourceImpl()),
+      ReplyRepositoryImpl(ReplyRemoteDataSourceImpl()),
+    );
     urls = widget.isYourPost ? Endpoints.myPosts : Endpoints.allPosts;
     widget.pagingController.addPageRequestListener((pageKey) {
       _fetchPosts(pageKey, request);
@@ -182,7 +185,19 @@ class _PostViewState extends State<PostView>
           ),
           itemBuilder: (context, item, index) {
             return PostCard(
-              onTap: () => print('Post'),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => DetailPostPage(
+                    updatePost: (b) => setState(() {
+                      print('Update post');
+                      if (b) {
+                        widget.pagingController.refresh();
+                      }
+                    }),
+                    post: item,
+                  ),
+                ),
+              ),
               onTapLike: () async {
                 if (isLoadingLike) return;
 
@@ -222,15 +237,14 @@ class _PostViewState extends State<PostView>
                     }
                   },
                   (right) {
+                    item.isLiked = !item.isLiked;
+
                     // Update UI
-                    setState(() {
-                      item.isLiked = !item.isLiked;
-                      if (item.isLiked) {
-                        item.likeCount++;
-                      } else {
-                        item.likeCount--;
-                      }
-                    });
+                    if (item.isLiked) {
+                      item.likeCount++;
+                    } else {
+                      item.likeCount--;
+                    }
 
                     setState(() {
                       isLoadingLike = false;

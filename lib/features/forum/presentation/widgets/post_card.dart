@@ -43,7 +43,7 @@ class PostCard extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 18),
+            const SizedBox(width: 14),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(right: 14),
@@ -95,19 +95,22 @@ class PostCard extends StatelessWidget {
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => ImagePreviewPage(
-                              imageUrl: '${Endpoints.baseUrl}${post.image}',
+                              tag: '${Endpoints.baseUrl}${post.image}-card',
+                              image: CachedNetworkImageProvider(
+                                '${Endpoints.baseUrl}${post.image}',
+                              ),
                             ),
                           ),
                         ),
                         child: Hero(
-                          tag: '${Endpoints.baseUrl}${post.image}',
+                          tag: '${Endpoints.baseUrl}${post.image}-card',
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(10),
                             child: Container(
                               width: double.infinity,
                               constraints: BoxConstraints(
                                 maxHeight:
-                                    MediaQuery.of(context).size.height / 2,
+                                    MediaQuery.of(context).size.height * 0.4,
                               ),
                               decoration: BoxDecoration(
                                 color: BaseColors.gray5,
@@ -115,12 +118,15 @@ class PostCard extends StatelessWidget {
                               ),
                               child: CachedNetworkImage(
                                 imageUrl: '${Endpoints.baseUrl}${post.image}',
-                                errorWidget: (context, url, error) {
-                                  return Image.network(
-                                    'https://placehold.co/400',
-                                    fit: BoxFit.cover,
-                                  );
-                                },
+                                errorWidget: (context, url, error) =>
+                                    Image.network(
+                                  'https://placehold.co/400',
+                                  fit: BoxFit.cover,
+                                ),
+                                placeholder: (context, url) => Image.network(
+                                  'https://placehold.co/400',
+                                  fit: BoxFit.cover,
+                                ),
                                 fit: BoxFit.cover,
                               ),
                             ),

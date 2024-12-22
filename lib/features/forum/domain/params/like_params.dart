@@ -6,10 +6,12 @@ class LikeParams {
   final CookieRequest request;
   final String url;
   final String uuid;
+  final bool isPost;
 
   LikeParams({
     required this.request,
     required this.url,
     required this.uuid,
+    this.isPost = true,
   });
 }

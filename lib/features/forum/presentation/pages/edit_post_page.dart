@@ -1,34 +1,43 @@
 part of '_pages.dart';
 
-class AddPostPage extends StatefulWidget {
-  const AddPostPage({
-    required this.onReceiveNewPost,
+class EditPostPage extends StatefulWidget {
+  const EditPostPage({
+    required this.postId,
+    required this.onReceiveNewState,
+    required this.prevContent,
+    this.prevImage,
     super.key,
   });
 
-  final VoidCallback onReceiveNewPost;
+  final String postId;
+  final void Function(String) onReceiveNewState;
+  final String prevContent;
+  final String? prevImage;
 
   @override
-  State<AddPostPage> createState() => _AddPostPageState();
+  State<EditPostPage> createState() => _EditPostPageState();
 }
 
-class _AddPostPageState extends State<AddPostPage> {
+class _EditPostPageState extends State<EditPostPage> {
   late CookieRequest request;
-  late final AddPostUseCase addPostUseCase;
+  late final EditPostUseCase editPostUseCase;
   late final FocusNode _focusNode;
   late final TextEditingController _textController;
 
   int _wordCount = 0;
   File? _image;
+  String? _imageUrl;
 
   @override
   void initState() {
     super.initState();
-    addPostUseCase = AddPostUseCase(
+    editPostUseCase = EditPostUseCase(
       PostRepositoryImpl(PostRemoteDataSourceImpl()),
     );
+    _imageUrl = widget.prevImage;
     _focusNode = FocusNode();
     _textController = TextEditingController();
+    _textController.text = widget.prevContent;
   }
 
   @override
@@ -115,7 +124,7 @@ class _AddPostPageState extends State<AddPostPage> {
                 ),
               ),
               child: Text(
-                'Post',
+                'Edit',
                 style: FontTheme.raleway16w700white(),
               ),
             ),
@@ -201,6 +210,35 @@ class _AddPostPageState extends State<AddPostPage> {
                             ),
                           ),
                         ),
+                      ] else if (widget.prevImage != null &&
+                          _imageUrl != null) ...[
+                        const SizedBox(height: 16),
+                        GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ImagePreviewPage(
+                                haveAnimation: false,
+                                tag: '${widget.prevImage!}-edit',
+                                image: CachedNetworkImageProvider(
+                                  widget.prevImage!,
+                                ),
+                              ),
+                            ),
+                          ),
+                          child: Hero(
+                            tag: '${widget.prevImage!}-edit',
+                            child: ImageBox(
+                              isEditPage: true,
+                              image: CachedNetworkImageProvider(
+                                widget.prevImage!,
+                              ),
+                              onDelete: () => setState(() {
+                                _imageUrl = null;
+                              }),
+                            ),
+                          ),
+                        ),
                       ],
                     ],
                   ),
@@ -257,6 +295,7 @@ class _AddPostPageState extends State<AddPostPage> {
 
       setState(() {
         _image = File(pickedImage.path);
+        _imageUrl = null;
       });
     }
   }
@@ -279,12 +318,12 @@ class _AddPostPageState extends State<AddPostPage> {
     final image = _image;
 
     // Hit API
-    final res = await addPostUseCase.execute(
+    final res = await editPostUseCase.execute(
       ManagePostParams(
         request: request,
-        url: Endpoints.addPost,
+        url: '${Endpoints.editPost}/${widget.postId}',
         content: content,
-        image: image,
+        image: image ?? File(''),
       ),
     );
 
@@ -317,7 +356,7 @@ class _AddPostPageState extends State<AddPostPage> {
       },
       (right) {
         // Update UI
-        widget.onReceiveNewPost();
+        widget.onReceiveNewState(_textController.text);
 
         Navigator.pop(context);
       },

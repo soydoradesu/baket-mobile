@@ -10,6 +10,14 @@ abstract class PostRepository {
   );
 
   Future<Either<Failure, Parsed<Map<String, dynamic>>>> addPost(
-    AddPostParams args,
+    ManagePostParams args,
+  );
+
+  Future<Either<Failure, Parsed<Map<String, dynamic>>>> editPost(
+    ManagePostParams args,
+  );
+
+  Future<Either<Failure, Parsed<Map<String, dynamic>>>> deletePost(
+    String args,
   );
 }

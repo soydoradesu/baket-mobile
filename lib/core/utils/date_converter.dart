@@ -19,4 +19,8 @@ class DateConverter {
       return DateFormat('dd MMM yyyy').format(postDate);
     }
   }
+
+  static String getFullDate(DateTime postDate) {
+    return DateFormat('HH:mm · MMM dd, yyyy').format(postDate);
+  }
 }
