@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:baket_mobile/core/constants/_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import '../models/review_model.dart';
 import '../models/product_model.dart';
@@ -27,6 +28,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   late Future<List<Review>> reviewsFuture;
   late ReviewService reviewService;
   late Future<Map<String, dynamic>> _ratingData;
+  late CookieRequest request;
 
   List<Review> originalReviews = [];
   List<Review> filteredReviews = [];
@@ -105,8 +107,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   Future<List<Review>> fetchReviews(String productId) async {
     try {
-      final response = await http.get(
-          Uri.parse('http://127.0.0.1:8000/catalogue/review-json/$productId'));
+      final response = await request.get(
+        '$baseUrl/catalogue/review-json/$productId');
 
       if (response.statusCode == 200) {
         originalReviews = reviewFromJson(response.body);
@@ -123,7 +125,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Future<Map<String, dynamic>> fetchAverageRating(String prodId) async {
-    final url = Uri.parse('http://127.0.0.1:8000/catalogue/calculate-ratings/');
+    final url = Uri.parse('$baseUrl/catalogue/calculate-ratings/');
 
     try {
       final response = await http.post(
@@ -460,9 +462,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                               onPressed: () async {
                                 final response = await request.postJson(
                                   "${Endpoints.baseUrl}/catalogue/create-review/",
-                                  jsonEncode(<String, String>{
+                                  jsonEncode(<String, dynamic>{
                                     'product_id': widget.product.id,
-                                    'rating': ratingValue.toString(),
+                                    'rating': ratingValue,
                                     'comment': comment,
                                   }),
                                 );
@@ -486,9 +488,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                     );
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                            "Terdapat kesalahan, silakan coba lagi."),
+                                      SnackBar(
+                                        content: Text(response['message'] ?? "Terdapat kesalahan, silakan coba lagi."),
                                       ),
                                     );
                                   }
