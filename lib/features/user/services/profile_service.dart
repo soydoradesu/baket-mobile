@@ -1,5 +1,6 @@
 // lib/features/user/services/profile_service.dart
 import 'dart:io';
+import 'package:baket_mobile/services/pref_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:baket_mobile/core/constants/_constants.dart';
 
@@ -13,11 +14,13 @@ class ProfileService {
 
   static const String baseUrl = Endpoints.baseUrl;
   static const String updateNameUrl = '$baseUrl/user/update-name-api/';
-  static const String updateBirthDateUrl = '$baseUrl/user/update-birth-date-api/';
+  static const String updateBirthDateUrl =
+      '$baseUrl/user/update-birth-date-api/';
   static const String updateEmailUrl = '$baseUrl/user/update-email-api/';
   static const String updatePhoneUrl = '$baseUrl/user/update-phone-api/';
   static const String updateGenderUrl = '$baseUrl/user/update-gender-api/';
-  String get uploadProfilePictureUrl => '$baseUrl/user/upload-profile-picture/'; // Adjusted based on Django view
+  String get uploadProfilePictureUrl =>
+      '$baseUrl/user/upload-profile-picture/'; // Adjusted based on Django view
   static const String logoutUrl = '$baseUrl/auth/logout/';
 
   Future<bool> updateName(String firstName, String lastName) async {
@@ -70,7 +73,8 @@ class ProfileService {
     }
 
     // Attach the image file
-    multipartRequest.files.add(await http.MultipartFile.fromPath('profile_picture', imageFile.path));
+    multipartRequest.files.add(
+        await http.MultipartFile.fromPath('profile_picture', imageFile.path));
 
     try {
       final streamedResponse = await multipartRequest.send();
@@ -79,7 +83,8 @@ class ProfileService {
       if (response.statusCode == 200) {
         return true;
       } else {
-        print('Failed to upload profile picture. Status code: ${response.statusCode}');
+        print(
+            'Failed to upload profile picture. Status code: ${response.statusCode}');
         return false;
       }
     } catch (e) {
@@ -89,6 +94,8 @@ class ProfileService {
   }
 
   Future<Map<String, dynamic>> logoutUser() async {
+    PrefService.removeKey('username');
+    PrefService.removeKey('password');
     return await request.logout(logoutUrl);
   }
 }

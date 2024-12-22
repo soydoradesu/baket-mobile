@@ -38,9 +38,9 @@ class _ProfileAppState extends State<ProfileApp> {
   final _biodataTooltipController = SuperTooltipController();
   final _kontakTooltipController = SuperTooltipController();
   static const String biodataTooltipContent =
-    'Bagian ini menampilkan informasi pribadi Anda seperti nama pengguna, tanggal lahir, dan jenis kelamin. Ketuk pada setiap bidang untuk mengedit dan pastikan detail Anda selalu akurat.';
+      'Bagian ini menampilkan informasi pribadi Anda seperti nama pengguna, tanggal lahir, dan jenis kelamin. Ketuk pada setiap bidang untuk mengedit dan pastikan detail Anda selalu akurat.';
   static const String kontakTooltipContent =
-    'Bagian ini memuat detail kontak Anda seperti email dan nomor telepon. Memperbarui informasi ini secara rutin memastikan komunikasi yang lancar dan kemudahan dalam pemulihan akun.';
+      'Bagian ini memuat detail kontak Anda seperti email dan nomor telepon. Memperbarui informasi ini secara rutin memastikan komunikasi yang lancar dan kemudahan dalam pemulihan akun.';
 
   static const String baseUrl = Endpoints.baseUrl;
   static const String fetchProfileUrl = '$baseUrl/user/json/';
@@ -128,25 +128,25 @@ class _ProfileAppState extends State<ProfileApp> {
 
     if (success) {
       ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        CustomSnackbar.snackbar(
-          message: 'Foto profil berhasil diupdate!',
-          icon: Icons.check_circle,
-          color: BaseColors.success,
-        ),
-      );
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          CustomSnackbar.snackbar(
+            message: 'Foto profil berhasil diupdate!',
+            icon: Icons.check_circle,
+            color: BaseColors.success,
+          ),
+        );
       await refreshProfile(); // Refresh the profile to show the new picture
     } else {
       ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        CustomSnackbar.snackbar(
-          message: 'Foto profil gagal diupdate',
-          icon: Icons.error,
-          color: BaseColors.error,
-        ),
-      );
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          CustomSnackbar.snackbar(
+            message: 'Foto profil gagal diupdate',
+            icon: Icons.error,
+            color: BaseColors.error,
+          ),
+        );
     }
   }
 
@@ -167,16 +167,16 @@ class _ProfileAppState extends State<ProfileApp> {
                   // Handle errors
                   errorBuilder: (context, error, stackTrace) => Container(
                     color: Colors.grey.shade200,
-                    child:
-                        const Center(child: Icon(Icons.error_outline, size: 60)),
+                    child: const Center(
+                        child: Icon(Icons.error_outline, size: 60)),
                   ),
                 ),
                 Positioned(
                   top: 0,
                   right: 0,
                   child: IconButton(
-                    icon: const Icon(Icons.close,
-                        color: Colors.white, size: 30),
+                    icon:
+                        const Icon(Icons.close, color: Colors.white, size: 30),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ),
@@ -207,8 +207,9 @@ class _ProfileAppState extends State<ProfileApp> {
 
     return PopScope(
       onPopInvokedWithResult: (didPop, result) => _willPopCallback,
-       child: Scaffold(
-        body: SafeArea( // Ensuring SafeArea wraps the entire content
+      child: Scaffold(
+        body: SafeArea(
+          // Ensuring SafeArea wraps the entire content
           child: FutureBuilder<UserProfile>(
             future: futureProfile,
             builder: (context, snapshot) {
@@ -232,7 +233,11 @@ class _ProfileAppState extends State<ProfileApp> {
                         const ShimmerCartSection(),
                         const SizedBox(height: 32),
 
-                        Divider(thickness: 1, height: 32, color: Colors.grey[300]),
+                        Divider(
+                          thickness: 1,
+                          height: 32,
+                          color: Colors.grey[300],
+                        ),
 
                         // Biodata Diri Section Header (No shimmer)
                         Row(
@@ -271,7 +276,11 @@ class _ProfileAppState extends State<ProfileApp> {
                           isLoading: true, // Shimmer on value
                         ),
 
-                        Divider(thickness: 1, height: 32, color: Colors.grey[300]),
+                        Divider(
+                          thickness: 1,
+                          height: 32,
+                          color: Colors.grey[300],
+                        ),
 
                         // Kontak User Section Header (No shimmer)
                         Row(
@@ -306,18 +315,23 @@ class _ProfileAppState extends State<ProfileApp> {
 
                         // Logout Button Section (Centered)
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.center, // Center the button
+                          mainAxisAlignment:
+                              MainAxisAlignment.center, // Center the button
                           children: [
                             ElevatedButton.icon(
                               onPressed: () {}, // Disabled during loading
-                              icon: const Icon(Icons.logout, color: BaseColors.gray2),
+                              icon: const Icon(Icons.logout,
+                                  color: BaseColors.gray2),
                               label: Text(
                                 'Keluar Akun',
                                 style: FontTheme.raleway14w500black2(),
                               ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: BaseColors.gray5,
-                                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 32,
+                                  vertical: 12,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -360,8 +374,8 @@ class _ProfileAppState extends State<ProfileApp> {
                   clipBehavior: Clip.none,
                   children: [
                     InkWell(
-                      onTap: () =>
-                          _showProfilePicturePreview('$baseUrl${user.profilePicture}'),
+                      onTap: () => _showProfilePicturePreview(
+                          '$baseUrl${user.profilePicture}'),
                       child: CircleAvatar(
                         backgroundImage:
                             NetworkImage('$baseUrl${user.profilePicture}'),
@@ -379,8 +393,10 @@ class _ProfileAppState extends State<ProfileApp> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
-                            border:
-                                Border.all(color: Colors.grey.shade300, width: 1),
+                            border: Border.all(
+                              color: Colors.grey.shade300,
+                              width: 1,
+                            ),
                           ),
                           padding: const EdgeInsets.all(4),
                           child: const Icon(
@@ -394,7 +410,8 @@ class _ProfileAppState extends State<ProfileApp> {
                   ],
                 ),
                 const SizedBox(width: 16),
-                Expanded( // Use Expanded to prevent overflow
+                Expanded(
+                  // Use Expanded to prevent overflow
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -402,8 +419,8 @@ class _ProfileAppState extends State<ProfileApp> {
                         onTap: () async {
                           final result = await showNameDialog(
                             context,
-                            currentFirst: user.firstName,
-                            currentLast: user.lastName,
+                            currentFirst: user.firstName ?? user.username,
+                            currentLast: user.lastName ?? '',
                           );
                           if (result != null) {
                             final updated = await profileService.updateName(
@@ -412,25 +429,25 @@ class _ProfileAppState extends State<ProfileApp> {
                             );
                             if (updated) {
                               ScaffoldMessenger.of(context)
-                              ..hideCurrentSnackBar()
-                              ..showSnackBar(
-                                CustomSnackbar.snackbar(
-                                  message: 'Nama berhasil diupdate!',
-                                  icon: Icons.check_circle,
-                                  color: BaseColors.success,
-                                ),
-                              );
+                                ..hideCurrentSnackBar()
+                                ..showSnackBar(
+                                  CustomSnackbar.snackbar(
+                                    message: 'Nama berhasil diupdate!',
+                                    icon: Icons.check_circle,
+                                    color: BaseColors.success,
+                                  ),
+                                );
                               await refreshProfile();
                             } else {
                               ScaffoldMessenger.of(context)
-                              ..hideCurrentSnackBar()
-                              ..showSnackBar(
-                                CustomSnackbar.snackbar(
-                                  message: 'Nama gagal diupdate',
-                                  icon: Icons.error,
-                                  color: BaseColors.error,
-                                ),
-                              );
+                                ..hideCurrentSnackBar()
+                                ..showSnackBar(
+                                  CustomSnackbar.snackbar(
+                                    message: 'Nama gagal diupdate',
+                                    icon: Icons.error,
+                                    color: BaseColors.error,
+                                  ),
+                                );
                             }
                           }
                         },
@@ -438,7 +455,8 @@ class _ProfileAppState extends State<ProfileApp> {
                           children: [
                             Expanded(
                               child: Text(
-                                '${user.firstName} ${user.lastName}',
+                                '${user.firstName == '' ? user.username : user.firstName} '
+                                '${user.lastName}',
                                 style: FontTheme.raleway22w700black(),
                               ),
                             ),
@@ -481,7 +499,9 @@ class _ProfileAppState extends State<ProfileApp> {
                 // Handle Tap Here
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const WishlistPage()),
+                  MaterialPageRoute(
+                    builder: (context) => const WishlistPage(),
+                  ),
                 ).then((_) async {
                   _fetchCartCount();
                   await refreshProfile(); // or setState(...) if you need to refetch
@@ -494,8 +514,10 @@ class _ProfileAppState extends State<ProfileApp> {
               borderRadius:
                   BorderRadius.circular(12), // To match container radius
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 16,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.grey[100],
                   borderRadius: BorderRadius.circular(12),
@@ -594,14 +616,14 @@ class _ProfileAppState extends State<ProfileApp> {
               value: user.username,
               onTap: () {
                 ScaffoldMessenger.of(context)
-                ..hideCurrentSnackBar()
-                ..showSnackBar(
-                  CustomSnackbar.snackbar(
-                    message: 'Belum bisa diupdate!',
-                    icon: Icons.error,
-                    color: BaseColors.error,
-                  ),
-                );
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(
+                    CustomSnackbar.snackbar(
+                      message: 'Belum bisa diupdate!',
+                      icon: Icons.error,
+                      color: BaseColors.error,
+                    ),
+                  );
               },
               isLoading: false, // No shimmer on value
             ),
@@ -617,25 +639,25 @@ class _ProfileAppState extends State<ProfileApp> {
                       await profileService.updateBirthDate(selectedDate);
                   if (updated) {
                     ScaffoldMessenger.of(context)
-                    ..hideCurrentSnackBar()
-                    ..showSnackBar(
-                      CustomSnackbar.snackbar(
-                        message: 'Tgl lahir berhasil diupdate!',
-                        icon: Icons.check_circle,
-                        color: BaseColors.success,
-                      ),
-                    );
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(
+                        CustomSnackbar.snackbar(
+                          message: 'Tgl lahir berhasil diupdate!',
+                          icon: Icons.check_circle,
+                          color: BaseColors.success,
+                        ),
+                      );
                     await refreshProfile();
                   } else {
                     ScaffoldMessenger.of(context)
-                    ..hideCurrentSnackBar()
-                    ..showSnackBar(
-                      CustomSnackbar.snackbar(
-                        message: 'Tgl lahir gagal diupdate',
-                        icon: Icons.error,
-                        color: BaseColors.error,
-                      ),
-                    );
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(
+                        CustomSnackbar.snackbar(
+                          message: 'Tgl lahir gagal diupdate',
+                          icon: Icons.error,
+                          color: BaseColors.error,
+                        ),
+                      );
                   }
                 }
               },
@@ -644,36 +666,37 @@ class _ProfileAppState extends State<ProfileApp> {
             const SizedBox(height: 8),
             BiodataItem(
               label: 'Jenis Kelamin',
-              value: user.gender,
+              value: user.gender ?? 'Tidak Diketahui',
               onTap: () async {
-                final newGender =
-                    await showGenderDialog(context, user.gender);
+                final newGender = await showGenderDialog(
+                  context,
+                  user.gender ?? 'Tidak Diketahui',
+                );
                 if (newGender != null &&
                     newGender.isNotEmpty &&
                     newGender != user.gender) {
-                  final updated =
-                      await profileService.updateGender(newGender);
+                  final updated = await profileService.updateGender(newGender);
                   if (updated) {
                     ScaffoldMessenger.of(context)
-                    ..hideCurrentSnackBar()
-                    ..showSnackBar(
-                      CustomSnackbar.snackbar(
-                        message: 'Gender berhasil diupdate!',
-                        icon: Icons.check_circle,
-                        color: BaseColors.success,
-                      ),
-                    );
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(
+                        CustomSnackbar.snackbar(
+                          message: 'Gender berhasil diupdate!',
+                          icon: Icons.check_circle,
+                          color: BaseColors.success,
+                        ),
+                      );
                     await refreshProfile();
                   } else {
                     ScaffoldMessenger.of(context)
-                    ..hideCurrentSnackBar()
-                    ..showSnackBar(
-                      CustomSnackbar.snackbar(
-                        message: 'Gender gagal diupdate',
-                        icon: Icons.error,
-                        color: BaseColors.error,
-                      ),
-                    );
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(
+                        CustomSnackbar.snackbar(
+                          message: 'Gender gagal diupdate',
+                          icon: Icons.error,
+                          color: BaseColors.error,
+                        ),
+                      );
                   }
                 }
               },
@@ -712,25 +735,25 @@ class _ProfileAppState extends State<ProfileApp> {
                   final updated = await profileService.updateEmail(newEmail);
                   if (updated) {
                     ScaffoldMessenger.of(context)
-                    ..hideCurrentSnackBar()
-                    ..showSnackBar(
-                      CustomSnackbar.snackbar(
-                        message: 'Email berhasil diupdate!',
-                        icon: Icons.check_circle,
-                        color: BaseColors.success,
-                      ),
-                    );
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(
+                        CustomSnackbar.snackbar(
+                          message: 'Email berhasil diupdate!',
+                          icon: Icons.check_circle,
+                          color: BaseColors.success,
+                        ),
+                      );
                     await refreshProfile();
                   } else {
                     ScaffoldMessenger.of(context)
-                    ..hideCurrentSnackBar()
-                    ..showSnackBar(
-                      CustomSnackbar.snackbar(
-                        message: 'Email gagal diupdate!',
-                        icon: Icons.error,
-                        color: BaseColors.error,
-                      ),
-                    );
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(
+                        CustomSnackbar.snackbar(
+                          message: 'Email gagal diupdate!',
+                          icon: Icons.error,
+                          color: BaseColors.error,
+                        ),
+                      );
                   }
                 }
               },
@@ -751,25 +774,25 @@ class _ProfileAppState extends State<ProfileApp> {
                   final updated = await profileService.updatePhone(newPhone);
                   if (updated) {
                     ScaffoldMessenger.of(context)
-                    ..hideCurrentSnackBar()
-                    ..showSnackBar(
-                      CustomSnackbar.snackbar(
-                        message: 'Nomor HP berhasil diupdate!',
-                        icon: Icons.check_circle,
-                        color: BaseColors.success,
-                      ),
-                    );
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(
+                        CustomSnackbar.snackbar(
+                          message: 'Nomor HP berhasil diupdate!',
+                          icon: Icons.check_circle,
+                          color: BaseColors.success,
+                        ),
+                      );
                     await refreshProfile();
                   } else {
                     ScaffoldMessenger.of(context)
-                    ..hideCurrentSnackBar()
-                    ..showSnackBar(
-                      CustomSnackbar.snackbar(
-                        message: 'Nomor HP gagal diupdate!',
-                        icon: Icons.error,
-                        color: BaseColors.error,
-                      ),
-                    );
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(
+                        CustomSnackbar.snackbar(
+                          message: 'Nomor HP gagal diupdate!',
+                          icon: Icons.error,
+                          color: BaseColors.error,
+                        ),
+                      );
                   }
                 }
               },
@@ -789,14 +812,14 @@ class _ProfileAppState extends State<ProfileApp> {
                       if (response["status"]) {
                         String uname = response["username"];
                         ScaffoldMessenger.of(context)
-                        ..hideCurrentSnackBar()
-                        ..showSnackBar(
-                          CustomSnackbar.snackbar(
-                            message: 'Sampai jumpa, $uname.',
-                            icon: Icons.logout,
-                            color: BaseColors.success,
-                          ),
-                        );
+                          ..hideCurrentSnackBar()
+                          ..showSnackBar(
+                            CustomSnackbar.snackbar(
+                              message: 'Sampai jumpa, $uname.',
+                              icon: Icons.logout,
+                              color: BaseColors.success,
+                            ),
+                          );
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
@@ -816,7 +839,8 @@ class _ProfileAppState extends State<ProfileApp> {
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: BaseColors.gray5,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),

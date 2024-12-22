@@ -371,12 +371,12 @@ class _ProductPageState extends State<ProductPage> {
 
                   final products = snapshot.data!;
                   return GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 10,
-                      childAspectRatio: 0.75,
+                      childAspectRatio: MediaQuery.of(context).size.width /
+                          (MediaQuery.of(context).size.height / 1.4),
                     ),
                     padding: const EdgeInsets.all(10),
                     itemCount: products.length,

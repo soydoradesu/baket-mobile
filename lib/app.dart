@@ -1,4 +1,4 @@
-import 'package:baket_mobile/features/auth/pages/login.dart';
+import 'package:baket_mobile/app_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -25,7 +25,7 @@ class App extends StatelessWidget {
           colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue),
           // ... other theme settings
         ),
-        home: const LoginApp(),
+        home: const AppWrapper(),
       ),
     );
   }

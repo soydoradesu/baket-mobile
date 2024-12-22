@@ -34,7 +34,7 @@ class CustomSnackbar {
       elevation: 3,
       duration: const Duration(seconds: 1),
       behavior: SnackBarBehavior.floating,
-      margin: const EdgeInsets.fromLTRB(64, 0, 64, 32),
+      margin: const EdgeInsets.fromLTRB(48, 0, 48, 32),
       padding: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),

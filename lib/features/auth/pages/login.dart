@@ -73,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
                 // Title
                 Text(
                   'Masuk ke Akun Kamu!',
-                  style: FontTheme.raleway22w700blue1(), 
+                  style: FontTheme.raleway22w700blue1(),
                 ),
                 const SizedBox(height: 32),
                 // Username Field
@@ -147,21 +147,25 @@ class _LoginPageState extends State<LoginPage> {
                       );
                       PrefService.saveString(
                         "username",
-                        response['username'],
+                        username,
+                      );
+                      PrefService.saveString(
+                        "password",
+                        password,
                       );
                       String message = response['message'];
                       String uname = response['username'];
                       if (context.mounted) {
                         Get.offAll(() => const NavigationMenu());
                         ScaffoldMessenger.of(context)
-                        ..hideCurrentSnackBar()
-                        ..showSnackBar(
-                          CustomSnackbar.snackbar(
-                            message: 'Selamat datang, $uname.',
-                            icon: Icons.login,
-                            color: BaseColors.success,
-                          ),
-                        );
+                          ..hideCurrentSnackBar()
+                          ..showSnackBar(
+                            CustomSnackbar.snackbar(
+                              message: 'Selamat datang, $uname.',
+                              icon: Icons.login,
+                              color: BaseColors.success,
+                            ),
+                          );
                       }
                     } else {
                       if (context.mounted) {
