@@ -107,8 +107,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   Future<List<Review>> fetchReviews(String productId) async {
     try {
-      final response = await request.get(
-        '$baseUrl/catalogue/review-json/$productId');
+      final response = await http.get(Uri.parse(Endpoints.reviews(productId)));
 
       if (response.statusCode == 200) {
         originalReviews = reviewFromJson(response.body);
@@ -488,7 +487,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text(response['message'] ?? "Terdapat kesalahan, silakan coba lagi."),
+                                        content: Text(response['message'] ??
+                                            "Terdapat kesalahan, silakan coba lagi."),
                                       ),
                                     );
                                   }

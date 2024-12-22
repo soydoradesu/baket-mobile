@@ -11,12 +11,15 @@ class Endpoints {
   // Change this to switch between local and production
   static const String baseUrl = baseUrlHp;
 
-
   // Auth
   static const String login = '$baseUrl/auth/login/';
   static const String register = '$baseUrl/auth/register/';
   static const String logout = '$baseUrl/auth/logout/';
 
+  // Catalogue
+  static const String catalogue = '$baseUrl/catalogue';
+  static String reviews(String productId) =>
+      '$catalogue/review-json/$productId';
 
   // Forum
   static const String feeds = '$baseUrl/feeds';
