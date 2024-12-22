@@ -47,6 +47,7 @@ class _ArticleMain extends State<ArticleMain> {
           commentCount: article.commentCount,
           hasLike: article.isLike,
           hasComment: article.isComment,
+          refresh: _refresh,
         ));
       }
     }
@@ -172,5 +173,9 @@ class _ArticleMain extends State<ArticleMain> {
         }
       ),
     );
+  }
+
+  void _refresh() {
+    setState(() {});
   }
 }
