@@ -11,10 +11,11 @@ import 'package:provider/provider.dart';
 
 class ArticlePage extends StatefulWidget {
   final String id;
-  const ArticlePage({super.key, required this.id});
+  final VoidCallback refresh;
+  const ArticlePage({super.key, required this.id, required this.refresh});
 
   @override
-  _ArticlePageState createState() => _ArticlePageState();
+  State<ArticlePage> createState() => _ArticlePageState();
 }
 
 class _ArticlePageState extends State<ArticlePage> {
@@ -52,6 +53,7 @@ class _ArticlePageState extends State<ArticlePage> {
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
               onPressed: () {
+                widget.refresh.call();
                 Navigator.pop(context);
               },
             ),
@@ -69,11 +71,11 @@ class _ArticlePageState extends State<ArticlePage> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16.0),
-                        boxShadow: [
+                        boxShadow: const [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black,
                             blurRadius: 6.0,
-                            offset: const Offset(0, 4),
+                            offset: Offset(0, 4),
                           ),
                         ],
                       ),
@@ -163,47 +165,7 @@ class _ArticlePageState extends State<ArticlePage> {
                     CommentSection(articleId: widget.id),
                     const SizedBox(height: 32.0),
                     // Other Articles Section
-                    Container(
-                      padding: const EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE0E0E0),
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Other Articles',
-                            style: TextStyle(
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF555555),
-                            ),
-                          ),
-                          const SizedBox(height: 16.0),
-                          ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: snapshot.data!.other.length,
-                            itemBuilder: (context, index) {
-                              Other o = snapshot.data!.other[index];
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                child: ArticleCard(
-                                  id: o.id,
-                                  title: o.title,
-                                  postedBy: o.postedBy,
-                                  likeCount: o.likeCount,
-                                  commentCount: o.commentCount,
-                                  hasLike: o.isLike,
-                                  hasComment: o.isComment,
-                                  mainPage: false,
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
+                    OtherArticlesList(otherArticles: snapshot.data!.other, refresh: widget.refresh,),
                   ],
                 ),
               ),
@@ -256,7 +218,7 @@ class _CommentSectionState extends State<CommentSection> {
           hasEdit: c.hasEdited,
           isLike: c.isLike,
           isUser: c.canEdit,
-          onDelete: _refresh,
+          refresh: _refresh,
         ));
       }
     }
@@ -381,5 +343,58 @@ class _CommentSectionState extends State<CommentSection> {
           ),
         ],
       );
+  }
+}
+
+class OtherArticlesList extends StatelessWidget {
+  final List<Other> otherArticles;
+  final VoidCallback refresh;
+
+  const OtherArticlesList({super.key, required this.otherArticles, required this.refresh});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE0E0E0),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Other Articles',
+            style: TextStyle(
+              fontSize: 18.0,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF555555),
+            ),
+          ),
+          const SizedBox(height: 16.0),
+          ListView.builder(
+            shrinkWrap: true,
+            itemCount: otherArticles.length,
+            itemBuilder: (context, index) {
+              final article = otherArticles[index];
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: ArticleCard(
+                  id: article.id,
+                  title: article.title,
+                  postedBy: article.postedBy,
+                  likeCount: article.likeCount,
+                  commentCount: article.commentCount,
+                  hasLike: article.isLike,
+                  hasComment: article.isComment,
+                  mainPage: false,
+                  refresh: refresh,
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
   }
 }

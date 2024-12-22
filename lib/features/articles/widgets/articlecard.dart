@@ -10,6 +10,7 @@ class ArticleCard extends StatelessWidget {
   final bool hasLike;
   final bool hasComment;
   final bool mainPage;
+  final VoidCallback refresh;
 
   const ArticleCard({
     super.key,
@@ -21,6 +22,7 @@ class ArticleCard extends StatelessWidget {
     this.hasLike = false,
     this.hasComment = false,
     this.mainPage = true,
+    required this.refresh,
   });
 
   @override
@@ -31,13 +33,13 @@ class ArticleCard extends StatelessWidget {
           if (mainPage) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => ArticlePage(id: id)),
+              MaterialPageRoute(builder: (context) => ArticlePage(id: id, refresh: refresh,)),
             );
           }
           else {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => ArticlePage(id: id)),
+              MaterialPageRoute(builder: (context) => ArticlePage(id: id, refresh: refresh,)),
             );
           }
         },

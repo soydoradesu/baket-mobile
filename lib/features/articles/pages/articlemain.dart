@@ -17,14 +17,19 @@ class _ArticleMain extends State<ArticleMain> {
   final TextEditingController _searchController = TextEditingController();
   String _search = '';
   String _sort = '';
+
   static const sortOptions = {
     'most_like': 'Like Terbanyak',
     'oldest': 'Terlama',
     'most_recent': 'Terbaru',
   };
 
+  String _buildUrl(String? search, String? sort) {
+    return '$baseUrl/articles/json/flutter/main/?search=${search ?? ''}&sort=${sort ?? ''}';
+  }
+
   Future<List<ArticleCard>> fetchArticles(CookieRequest request, {String? search, String? sort}) async {
-    final url = '$baseUrl/articles/json/flutter/main/?search=${search ?? ''}&sort=${sort ?? ''}';
+    final url = _buildUrl(search, sort);
     final response = await request.get(url);
 
     var data = response;
@@ -42,6 +47,7 @@ class _ArticleMain extends State<ArticleMain> {
           commentCount: article.commentCount,
           hasLike: article.isLike,
           hasComment: article.isComment,
+          refresh: _refresh,
         ));
       }
     }
@@ -95,11 +101,6 @@ class _ArticleMain extends State<ArticleMain> {
                               enabledBorder: OutlineInputBorder(),
                               border: OutlineInputBorder(),
                             ),
-                            // onChanged: (value) {
-                            //   setState(() {
-                            //     _search = value;
-                            //   });
-                            // },
                           ),
                         ),
                         SizedBox(
@@ -172,5 +173,9 @@ class _ArticleMain extends State<ArticleMain> {
         }
       ),
     );
+  }
+
+  void _refresh() {
+    setState(() {});
   }
 }

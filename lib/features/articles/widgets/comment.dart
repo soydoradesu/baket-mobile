@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:baket_mobile/core/constants/_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -14,7 +12,7 @@ class CommentWidget extends StatefulWidget {
   final bool hasEdit;
   final bool isLike;
   final bool isUser;
-  final VoidCallback? onDelete;
+  final VoidCallback? refresh;
 
   const CommentWidget({
     super.key, 
@@ -26,7 +24,7 @@ class CommentWidget extends StatefulWidget {
     this.hasEdit = false,
     this.isLike = false,
     this.isUser = false,
-    required this.onDelete,
+    required this.refresh,
   });
 
   @override
@@ -35,21 +33,17 @@ class CommentWidget extends StatefulWidget {
 
 class _CommentWidgetState extends State<CommentWidget> {
   static const String baseUrl = Endpoints.baseUrl;
-  int _likes = 0;
-  bool _isLike = false;
 
   @override
   void initState() {
     super.initState();
-    _likes = widget.likes;
-    _isLike = widget.isLike;
   }
 
   @override
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
     return Container(
-      margin: const EdgeInsets.only(top: 16), // equivalent to mt-4
+      margin: const EdgeInsets.only(top: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -71,8 +65,8 @@ class _CommentWidgetState extends State<CommentWidget> {
           Text(
             widget.comment,
             style: const TextStyle(
-              overflow: TextOverflow.visible, // equivalent to break-words
-              leadingDistribution: TextLeadingDistribution.even, // equivalent to leading-7
+              overflow: TextOverflow.visible,
+              leadingDistribution: TextLeadingDistribution.even,
             ),
           ),
           Row(
@@ -85,19 +79,18 @@ class _CommentWidgetState extends State<CommentWidget> {
                       final url = "$baseUrl/articles/likeComment/${widget.commentId}/";
                       await request.get(url);
                       setState(() {
-                        _isLike = !_isLike;
-                        _likes = _isLike ? _likes + 1 : _likes - 1;
+                        widget.refresh?.call();
                       });
                     },
                     child: Icon(
                       Icons.thumb_up,
-                      color: _isLike ? Colors.blue : Colors.grey[400], // equivalent to #c8c8c8
+                      color: widget.isLike ? Colors.blue : Colors.grey[400],
                       size: 18,
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.only(left:4.0),
-                    child: Text('${_likes}'), // like count
+                    padding: const EdgeInsets.only(left:4.0),
+                    child: Text('${widget.likes}'),
                   ),
                 ],
               ),
@@ -116,7 +109,7 @@ class _CommentWidgetState extends State<CommentWidget> {
                             .showSnackBar(const SnackBar(
                               content: Text("Komentar berhasil dihapus"),
                             ));
-                            widget.onDelete?.call();
+                            widget.refresh?.call();
                           }
                           else {
                             ScaffoldMessenger.of(context)
@@ -128,7 +121,7 @@ class _CommentWidgetState extends State<CommentWidget> {
                       },
                       child: const Icon(
                         Icons.delete,
-                        color: Colors.red, // equivalent to #ff0000
+                        color: Colors.red,
                         size: 18,
                       ),
                     ),
